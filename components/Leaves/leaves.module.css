@@ -1,0 +1,129 @@
+/* ── the contained section at the bottom of the page ──────────────────── */
+
+.section {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px clamp(24px, 6vw, 48px) 96px;
+}
+
+.invite {
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 60, "wght" 400, "SOFT" 70;
+  font-size: clamp(26px, 3.2vw, 38px);
+  line-height: 1.25;
+  color: var(--ink);
+  margin: 0 0 12px;
+  letter-spacing: -0.012em;
+  max-width: 28ch;
+}
+
+.inviteSub {
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 24, "wght" 400, "SOFT" 60;
+  font-size: clamp(15px, 1.7vw, 17px);
+  color: var(--ink-dim);
+  margin: 0 0 28px;
+  max-width: 36ch;
+  line-height: 1.55;
+}
+
+/* the field — relatively-positioned container that leaves live inside.
+   leaves use top/left % values that refer to this box's dimensions. */
+.field {
+  position: relative;
+  width: 100%;
+  height: clamp(340px, 42vh, 480px);
+}
+
+/* ── one leaf ─────────────────────────────────────────────────────────── */
+
+.leaf {
+  position: absolute;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  z-index: 1;
+  /* sway rocks the whole leaf gently around the rotation set per-instance */
+  transform-origin: 50% 76%;
+  animation: sway var(--sway-dur, 6s) ease-in-out var(--sway-delay, 0s) infinite;
+  filter:
+    drop-shadow(0 5px 6px rgba(40, 25, 12, 0.22))
+    drop-shadow(0 1px 2px rgba(40, 25, 12, 0.14));
+  transition: filter 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.leaf:hover {
+  filter:
+    drop-shadow(0 10px 14px rgba(40, 25, 12, 0.30))
+    drop-shadow(0 3px 4px rgba(40, 25, 12, 0.18));
+}
+
+.leaf:focus-visible {
+  outline: 1px dashed rgba(122, 100, 72, 0.6);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.leaf svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* idle sway — small rocking off the base rotation set inline */
+@keyframes sway {
+  0%, 100% { transform: rotate(var(--rotation, 0deg)); }
+  50%      { transform: rotate(calc(var(--rotation, 0deg) + var(--sway-amp, 2deg))); }
+}
+
+/* ── the five pieces — irregular crack trajectories ─────────────────── */
+
+.piece {
+  transform-origin: 0 0;
+  /* drift home: slow, settling ease so pieces feel like they have weight */
+  transition: transform 950ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cracked .piece {
+  /* fast snap out: sharp curve, the moment of breaking */
+  transition: transform 180ms cubic-bezier(0.55, 0, 0.35, 1);
+}
+
+/* every piece moves a different distance, angle, and rotation — no two
+   pieces fly the same way. asymmetric values look more natural than
+   mirrored ones, like a real leaf splitting along weak veins. */
+
+/* tip cap: small motion up + slight tilt. it's at the top, low mass. */
+.cracked .tip {
+  transform: translate(-3px, -13px) rotate(-19deg);
+}
+
+/* mid pieces: the largest motion — these are the main body fragments */
+.cracked .midL {
+  transform: translate(-17px, -5px) rotate(-30deg);
+}
+.cracked .midR {
+  transform: translate( 13px, -7px) rotate( 25deg);
+}
+
+/* bot pieces: stronger downward bias, like real fragments falling */
+.cracked .botL {
+  transform: translate(-8px, 11px) rotate(-12deg);
+}
+.cracked .botR {
+  transform: translate( 12px, 14px) rotate( 17deg);
+}
+
+/* ── reduced motion ──────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .leaf { animation: none; }
+  .piece, .cracked .piece { transition: none; }
+}
