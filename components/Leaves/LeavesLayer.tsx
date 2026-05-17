@@ -353,7 +353,15 @@ function rollShards(): ShardTransform[] {
   });
 }
 
-function PileLeaf({ item, index }: { item: PileItem; index: number }) {
+function PileLeaf({
+  item,
+  index,
+  totalLeaves,
+}: {
+  item: PileItem;
+  index: number;
+  totalLeaves: number;
+}) {
   const reducedMotion = useReducedMotion();
   const [hovered, setHovered] = useState(false);
   const [cracked, setCracked] = useState(false);
@@ -448,7 +456,14 @@ function PileLeaf({ item, index }: { item: PileItem; index: number }) {
       onHoverEnd={() => setHovered(false)}
       onClick={handleClick}
       onPointerEnter={warmAudio}
-      aria-label="A dry leaf — press to crack"
+      {...(cracked
+        ? { tabIndex: -1, "aria-hidden": true }
+        : {
+            tabIndex: 0,
+            "aria-label": `Crack leaf ${index + 1} of ${totalLeaves}`,
+            "aria-posinset": index + 1,
+            "aria-setsize": totalLeaves,
+          })}
     >
       {cracked && shardTransforms ? (
         SHARDS.map((shard, i) => {
@@ -568,6 +583,8 @@ function PileScene() {
   return (
     <div
       className={styles.pile}
+      role="group"
+      aria-label="Leaf pile"
       onMouseMove={handlePileMove}
       onMouseLeave={handlePileLeave}
     >
@@ -579,6 +596,7 @@ function PileScene() {
             alt=""
             draggable={false}
             className={styles.ambientChip}
+            aria-hidden
             style={{
               left: `${chip.x}%`,
               top: `${chip.y}%`,
@@ -591,7 +609,12 @@ function PileScene() {
           />
         ))}
         {PILE.map((item, i) => (
-          <PileLeaf key={i} item={item} index={i} />
+          <PileLeaf
+            key={i}
+            item={item}
+            index={i}
+            totalLeaves={PILE.length}
+          />
         ))}
       </div>
     </div>
@@ -600,12 +623,18 @@ function PileScene() {
 
 export default function LeavesLayer() {
   return (
-    <section className={styles.section} aria-label="A pile of dry leaves">
-      <p className={styles.invite}>
+    <section
+      className={styles.section}
+      aria-labelledby="leaf-invite-heading"
+      aria-describedby="leaf-pile-hint"
+    >
+      <p id="leaf-invite-heading" className={styles.invite}>
         I gathered some leaves for you to crack.
       </p>
-      <p className={styles.inviteSub}>
-        They&apos;re crunchy.
+      <p className={styles.inviteSub}>They&apos;re crunchy.</p>
+      <p id="leaf-pile-hint" className="sr-only">
+        {LEAF_COUNT} dry leaves are scattered below. Activate any leaf to
+        crack it. Cracked leaves are removed from keyboard navigation.
       </p>
 
       <PileScene />

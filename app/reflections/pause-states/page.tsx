@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "Pause states — Arun S R",
+  title: "Pause states",
   description: "On the pending state — in software and in the pauses between.",
 };
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "Reflections — Arun S R",
+  title: "Reflections",
   description: "Writing slowly, on things worth saying.",
 };
 
