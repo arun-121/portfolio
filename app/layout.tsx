@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import AmbientAtmosphere from "@/components/AmbientAtmosphere";
 import { getSiteUrl, SITE } from "@/lib/site";
 import "./globals.css";
 
@@ -52,7 +53,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable}`}>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <AmbientAtmosphere />
+        {children}
+      </body>
     </html>
   );
 }

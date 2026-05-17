@@ -1,56 +1,84 @@
-/* ── bottom section ──────────────────────────────────────────────────── */
+/* ── leaf section — slow arrival, editorial exhale ─────────────────── */
 
 .section {
   position: relative;
   z-index: 1;
-  max-width: 1100px;
+  max-width: min(1100px, 100%);
   margin: 0 auto;
-  padding: 24px clamp(24px, 6vw, 48px) 96px;
+  padding: clamp(64px, 10vh, 96px) clamp(24px, 6vw, 48px)
+    clamp(112px, 14vh, 160px);
+}
+
+/* Soft threshold before the leaves — visitor drifts in */
+.section::before {
+  content: "";
+  display: block;
+  width: min(100%, var(--read-max, 36rem));
+  height: 1px;
+  margin: 0 auto clamp(56px, 8vh, 80px);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(42, 31, 21, 0.08) 35%,
+    rgba(42, 31, 21, 0.08) 65%,
+    transparent 100%
+  );
+}
+
+/* Gentle fade from prose into leaves — transparent, no painted panel */
+.section::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: clamp(80px, 12vh, 140px);
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    var(--bg) 0%,
+    transparent 100%
+  );
+  opacity: 0.35;
 }
 
 .invite {
+  position: relative;
+  z-index: 1;
   font-family: var(--serif);
-  font-variation-settings: "opsz" 60, "wght" 400, "SOFT" 70;
-  font-size: clamp(26px, 3.2vw, 38px);
-  line-height: 1.25;
-  color: var(--ink);
-  margin: 0 0 12px;
-  letter-spacing: -0.012em;
-  max-width: 28ch;
+  font-variation-settings: "opsz" 52, "wght" 400, "SOFT" 70;
+  font-size: clamp(24px, 2.8vw, 34px);
+  line-height: 1.32;
+  color: var(--ink-soft);
+  margin: 0 0 14px;
+  letter-spacing: 0.004em;
+  max-width: 22ch;
 }
 
 .inviteSub {
+  position: relative;
+  z-index: 1;
   font-family: var(--serif);
-  font-variation-settings: "opsz" 24, "wght" 400, "SOFT" 60;
-  font-size: clamp(15px, 1.7vw, 17px);
+  font-variation-settings: "opsz" 24, "wght" 400, "SOFT" 65;
+  font-size: clamp(15px, 1.6vw, 17px);
   color: var(--ink-dim);
-  margin: 0 0 28px;
-  max-width: 36ch;
-  line-height: 1.55;
+  margin: 0 0 clamp(40px, 6vh, 56px);
+  max-width: 28ch;
+  line-height: 1.62;
 }
 
-/* ── pile container ────────────────────────────────────────────────────
-   POV / “tilted floor”: one perspective + one rotateX on .pilePlane only.
-   Leaves stay 2D-stacked (z-index only, no per-leaf translateZ) so clicks
-   stay reliable. This reads like looking forward-down at the ground, not
-   a bird’s-eye / map view. */
+/* ── pile container ──────────────────────────────────────────────────── */
 
 .pile {
   position: relative;
   width: 100%;
-  height: clamp(440px, 58vh, 640px);
+  height: clamp(460px, 58vh, 660px);
   overflow: visible;
-  /* Viewer distance — lower = stronger foreshortening of the tilted plane */
-  perspective: clamp(880px, 82vw, 1400px);
-  /* Eye line: slightly above center so the ground plane feels below the horizon */
+  perspective: clamp(920px, 84vw, 1500px);
   perspective-origin: 50% 46%;
-  background:
-    radial-gradient(
-      ellipse 78% 10% at 50% 88%,
-      rgba(40, 25, 12, 0.11) 0%,
-      rgba(40, 25, 12, 0.04) 55%,
-      transparent 82%
-    );
+  --parx: 0px;
+  --pary: 0px;
+  background: transparent;
 }
 
 .pilePlane {
@@ -60,14 +88,25 @@
   height: 100%;
   isolation: isolate;
   transform-style: preserve-3d;
-  /* Hinge at bottom: foreground near you, top of frame recedes — walking POV */
   transform-origin: 50% 98%;
-  transform: rotateX(11deg) rotateZ(0.15deg);
+  transform: rotateX(11deg) rotateZ(0.12deg)
+    translate3d(var(--parx), var(--pary), 0);
+  transition: transform 1.4s var(--ease-slow, ease);
+}
+
+/* Tiny wind-scattered chips — not interactive */
+.ambientChip {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  object-fit: contain;
+  filter: brightness(0.88) saturate(0.9);
+  transform: translate(-50%, -50%);
+  -webkit-user-drag: none;
 }
 
 /* ── one leaf ────────────────────────────────────────────────────────── */
 
-/* Leaf shell: layout + cursor. Transforms come from Framer Motion (satisfying springs). */
 .leaf {
   position: absolute;
   margin: 0;
@@ -83,10 +122,6 @@
   touch-action: manipulation;
 }
 
-/* The single image rendered when the leaf is at rest. CRITICAL: width
-   and height must be 100% of the button box, otherwise the browser
-   renders the image at its full natural size (~2000px source) and
-   blows the leaf box up. */
 .leafImg {
   width: 100%;
   height: 100%;
@@ -95,17 +130,9 @@
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
-  /* Shadow on the image — separate from button brightness filter for perf */
-  filter:
-    drop-shadow(var(--leaf-ds, 1px 4px 5px rgba(32, 20, 8, 0.2)))
-    drop-shadow(var(--leaf-ds-soft, 0 8px 12px rgba(32, 20, 8, 0.09)));
+  filter: drop-shadow(var(--leaf-ds, 0 2px 10px rgba(32, 20, 8, 0.09)));
 }
 
-/* Six clipped copies of the same image stack on top of each other.
-   Each shard's clip-path is set inline, so only its wedge is visible.
-   When at rest (transform: 0,0), the six wedges tile back into the
-   whole leaf perfectly. When cracking, each translates+rotates in its
-   own direction, carrying its slice of the photo with it. */
 .shard {
   position: absolute;
   inset: 0;
@@ -116,18 +143,13 @@
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
-  /* No drop-shadow — clip-path wedges cast triangular blobs when separated */
 }
 
 .leaf:focus-visible {
-  outline: 1px dashed rgba(122, 100, 72, 0.6);
+  outline: 1px dashed rgba(122, 100, 72, 0.45);
   outline-offset: 4px;
   border-radius: 4px;
 }
-
-/* ── responsive ──────────────────────────────────────────────────────── */
-
-/* ── crack fragments — small irregular chips that scatter on click ──── */
 
 .fragments {
   position: absolute;
@@ -151,21 +173,31 @@
 }
 
 @media (max-width: 600px) {
+  .section {
+    padding-top: 48px;
+  }
+  .section::before {
+    margin-bottom: 40px;
+  }
   .pile {
-    height: clamp(360px, 60vw, 500px);
-    perspective: clamp(760px, 92vw, 1100px);
+    height: clamp(380px, 62vw, 520px);
+    perspective: clamp(780px, 94vw, 1120px);
     perspective-origin: 50% 48%;
   }
   .pilePlane {
     transform-origin: 50% 98%;
-    transform: rotateX(7deg) rotateZ(0.1deg);
+    transform: rotateX(7deg) rotateZ(0.08deg)
+      translate3d(var(--parx), var(--pary), 0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .pile { perspective: none; }
-  .pilePlane { transform: none; transform-style: flat; }
+  .pilePlane {
+    transform: rotateX(7deg);
+    transition: none;
+  }
   .leafImg {
-    filter: drop-shadow(1px 3px 4px rgba(32, 20, 8, 0.14));
+    filter: drop-shadow(0 2px 6px rgba(32, 20, 8, 0.08));
   }
 }

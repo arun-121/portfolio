@@ -2,20 +2,21 @@
   --bg:        #F4EBD8;
   --bg-soft:   #EDE2CC;
   --ink:       #2A1F15;
-  --ink-soft:  #44342A;
-  --ink-dim:   #7A6448;
-  --ink-faint: #A89072;
-  --warm:      #C4864A;
-  --warm-deep: #9A6430;
-  --rule:      rgba(42, 31, 21, 0.09);
-  --glow-honey: rgba(255, 198, 140, 0.48);
-  --glow-peach: rgba(255, 168, 118, 0.22);
-  --glow-rose:  rgba(255, 220, 195, 0.35);
+  --ink-soft:  #4A3D32;
+  --ink-dim:   #8A7560;
+  --ink-faint: #B5A48C;
+  --warm:      #B88452;
+  --warm-deep: #946A3A;
+  --rule:      rgba(42, 31, 21, 0.07);
+
+  --read-max:  36rem;
+  --page-max:  36rem;
 
   --serif: var(--font-fraunces), "Instrument Serif", Georgia, serif;
   --sans:  var(--font-inter), system-ui, -apple-system, sans-serif;
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-slow: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -40,7 +41,7 @@ body {
 }
 @keyframes enter { to { opacity: 1; } }
 
-/* Heartwarming wash — honey light pooling in the top-right, soft floor glow */
+/* Paper base wash — static; drift lives in .ambientGlow */
 body::after {
   content: "";
   position: fixed;
@@ -50,32 +51,99 @@ body::after {
   background:
     radial-gradient(
       ellipse 95% 75% at 92% 6%,
-      var(--glow-honey) 0%,
-      var(--glow-rose) 32%,
-      transparent 62%
-    ),
-    radial-gradient(
-      ellipse 45% 40% at 98% 18%,
-      var(--glow-peach) 0%,
-      transparent 58%
+      rgba(255, 198, 140, 0.38) 0%,
+      rgba(255, 220, 195, 0.14) 34%,
+      transparent 64%
     ),
     radial-gradient(
       ellipse 65% 55% at 0% 100%,
-      rgba(196, 148, 88, 0.11) 0%,
+      rgba(196, 148, 88, 0.09) 0%,
       transparent 72%
     );
 }
 
-/* faint grain */
+/* Paper grain */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.035;
+  opacity: 0.048;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.16  0 0 0 0 0.12  0 0 0 0 0.08  0 0 0 0.7 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* ── ambient layer (living stillness) ─────────────────────────── */
+.ambientLayer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ambientGlow {
+  position: absolute;
+  inset: -8%;
+  background:
+    radial-gradient(
+      ellipse 90% 70% at 88% 12%,
+      rgba(255, 205, 155, 0.22) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 50% 45% at 12% 88%,
+      rgba(180, 140, 90, 0.08) 0%,
+      transparent 55%
+    );
+  animation: ambientDrift 36s var(--ease-slow) infinite alternate;
+  will-change: transform, opacity;
+}
+
+.ambientDust {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(90, 60, 35, 0.85);
+  filter: blur(0.4px);
+  animation: dustFloat var(--dur, 60s) var(--ease-slow) var(--delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes ambientDrift {
+  0% {
+    opacity: 0.88;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate3d(-1.2%, 0.8%, 0) scale(1.02);
+  }
+  100% {
+    opacity: 0.9;
+    transform: translate3d(0.6%, -0.5%, 0) scale(1.01);
+  }
+}
+
+@keyframes dustFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: var(--dust-o, 0.04);
+  }
+  33% {
+    transform: translate3d(12px, -18px, 0);
+    opacity: calc(var(--dust-o, 0.04) * 1.15);
+  }
+  66% {
+    transform: translate3d(-8px, 10px, 0);
+    opacity: calc(var(--dust-o, 0.04) * 0.85);
+  }
+}
+
+.ambientLayer[data-reduced="true"] .ambientGlow {
+  animation: none;
+  opacity: 0.92;
 }
 
 ::selection { background: rgba(196, 134, 74, 0.26); color: var(--ink); }
@@ -83,45 +151,51 @@ body::before {
 a {
   color: inherit;
   text-decoration: none;
-  border-bottom: 1px solid rgba(42, 31, 21, 0.18);
+  border-bottom: 1px solid rgba(42, 31, 21, 0.14);
   padding-bottom: 1px;
-  transition: border-color 600ms var(--ease), color 600ms var(--ease);
+  transition:
+    border-color 900ms var(--ease-slow),
+    color 900ms var(--ease-slow),
+    opacity 900ms var(--ease-slow);
 }
-a:hover { border-bottom-color: var(--ink); color: var(--ink); }
+a:hover {
+  border-bottom-color: rgba(42, 31, 21, 0.35);
+  color: var(--ink-soft);
+}
 
 /* ── page ────────────────────────────────────────────────────── */
 main {
   position: relative;
   z-index: 1;
-  max-width: 680px;
+  max-width: var(--page-max);
   margin: 0 auto;
-  padding: clamp(80px, 14vh, 160px) clamp(24px, 6vw, 48px) 60px;
+  padding: clamp(88px, 16vh, 168px) clamp(24px, 6vw, 48px) clamp(72px, 10vh, 100px);
 }
 
 /* ── greeting ────────────────────────────────────────────────── */
 .greeting {
   font-family: var(--serif);
-  font-variation-settings: "opsz" 96, "wght" 400, "SOFT" 60;
-  font-size: clamp(56px, 11vw, 112px);
+  font-variation-settings: "opsz" 72, "wght" 400, "SOFT" 60;
+  font-size: clamp(44px, 8.2vw, 80px);
   line-height: 1.0;
   letter-spacing: -0.03em;
   color: var(--ink);
-  margin: 0 0 56px;
+  margin: 0 0 clamp(64px, 9vh, 88px);
   font-weight: 400;
 }
 
 /* ── prose blocks ────────────────────────────────────────────── */
 .prose {
   font-family: var(--serif);
-  font-variation-settings: "opsz" 36, "wght" 400, "SOFT" 50;
-  font-size: clamp(20px, 2.4vw, 24px);
-  line-height: 1.55;
+  font-variation-settings: "opsz" 36, "wght" 400, "SOFT" 55;
+  font-size: clamp(19px, 2.2vw, 23px);
+  line-height: 1.68;
   color: var(--ink-soft);
-  letter-spacing: -0.005em;
-  margin: 0 0 80px;
-  max-width: 30ch;
+  letter-spacing: 0.002em;
+  margin: 0 0 clamp(96px, 12vh, 128px);
+  max-width: var(--read-max);
 }
-.prose p { margin: 0 0 20px; }
+.prose p { margin: 0 0 1.35em; }
 .prose p:last-child { margin-bottom: 0; }
 .prose a {
   color: var(--warm-deep);
@@ -131,21 +205,24 @@ main {
   color: var(--warm-deep);
   border-bottom-color: var(--warm-deep);
 }
-.prose .muted { color: var(--ink-dim); }
+.prose .muted {
+  color: var(--ink-dim);
+  font-variation-settings: "opsz" 32, "wght" 400, "SOFT" 60;
+}
 
 /* ── writing list ────────────────────────────────────────────── */
 .writing {
-  margin: 0 0 96px;
+  margin: 0 0 clamp(112px, 14vh, 144px);
 }
 .writing .lead {
   font-family: var(--serif);
-  font-variation-settings: "opsz" 36, "wght" 400, "SOFT" 50;
-  font-size: clamp(20px, 2.4vw, 24px);
-  color: var(--ink-soft);
-  margin: 0 0 36px;
-  line-height: 1.55;
-  max-width: 30ch;
-  letter-spacing: -0.005em;
+  font-variation-settings: "opsz" 36, "wght" 400, "SOFT" 55;
+  font-size: clamp(19px, 2.2vw, 23px);
+  color: var(--ink-dim);
+  margin: 0 0 40px;
+  line-height: 1.65;
+  max-width: var(--read-max);
+  letter-spacing: 0.002em;
 }
 .writing ul {
   list-style: none;
@@ -161,21 +238,21 @@ main {
   gap: 24px;
   padding: 18px 0;
   border: none;
-  transition: padding-left 600ms var(--ease);
+  transition: padding-left 900ms var(--ease-slow);
 }
-.writing a:hover { padding-left: 8px; }
-.writing a:hover .w-title { color: var(--warm-deep); }
+.writing a:hover { padding-left: 5px; }
+.writing a:hover .w-title { color: var(--ink-soft); }
 .writing .w-title {
   font-family: var(--serif);
-  font-variation-settings: "opsz" 24, "wght" 400, "SOFT" 50;
-  font-size: 19px;
-  color: var(--ink-soft);
-  transition: color 500ms var(--ease);
-  line-height: 1.3;
+  font-variation-settings: "opsz" 24, "wght" 400, "SOFT" 55;
+  font-size: 18px;
+  color: var(--ink-dim);
+  transition: color 800ms var(--ease-slow);
+  line-height: 1.4;
 }
 .writing .w-meta {
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-faint);
   white-space: nowrap;
   flex-shrink: 0;
@@ -186,13 +263,13 @@ main {
 /* ── find me ─────────────────────────────────────────────────── */
 .find {
   font-family: var(--serif);
-  font-variation-settings: "opsz" 36, "wght" 400, "SOFT" 50;
-  font-size: clamp(20px, 2.4vw, 24px);
-  line-height: 1.55;
+  font-variation-settings: "opsz" 36, "wght" 400, "SOFT" 55;
+  font-size: clamp(19px, 2.2vw, 23px);
+  line-height: 1.68;
   color: var(--ink-soft);
-  margin: 0 0 96px;
-  max-width: 34ch;
-  letter-spacing: -0.005em;
+  margin: 0 0 clamp(80px, 12vh, 120px);
+  max-width: var(--read-max);
+  letter-spacing: 0.002em;
 }
 .find a {
   color: var(--warm-deep);
@@ -205,9 +282,9 @@ main {
 footer {
   position: relative;
   z-index: 1;
-  max-width: 680px;
+  max-width: var(--page-max);
   margin: 0 auto;
-  padding: 32px clamp(24px, 6vw, 48px) 60px;
+  padding: 40px clamp(24px, 6vw, 48px) clamp(56px, 8vh, 72px);
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -226,7 +303,22 @@ footer {
   font-variant-numeric: tabular-nums;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  body::after,
+  body::before {
+    animation: none;
+  }
+  .ambientGlow,
+  .ambientDust {
+    animation: none !important;
+  }
+}
+
 @media (max-width: 600px) {
+  :root {
+    --read-max: 100%;
+    --page-max: 100%;
+  }
   footer {
     justify-content: flex-start;
   }
@@ -234,11 +326,11 @@ footer {
     text-align: left;
   }
   main { padding-top: 80px; }
-  .greeting { font-size: clamp(48px, 14vw, 80px); margin-bottom: 40px; }
-  .prose, .writing .lead, .find { font-size: 19px; max-width: none; }
-  .prose { margin-bottom: 56px; }
-  .writing { margin-bottom: 64px; }
-  .find { margin-bottom: 64px; }
+  .greeting { font-size: clamp(38px, 11vw, 64px); margin-bottom: 48px; }
+  .prose, .writing .lead, .find { font-size: 18px; }
+  .prose { margin-bottom: 72px; }
+  .writing { margin-bottom: 80px; }
+  .find { margin-bottom: 72px; }
 }
 
 /* ── back link ───────────────────────────────────────────────── */
@@ -293,12 +385,12 @@ footer {
 
 .articleBody {
   font-family: var(--serif);
-  font-variation-settings: "opsz" 24, "wght" 400, "SOFT" 50;
+  font-variation-settings: "opsz" 24, "wght" 400, "SOFT" 55;
   font-size: clamp(18px, 2.2vw, 21px);
-  line-height: 1.68;
+  line-height: 1.72;
   color: var(--ink-soft);
-  letter-spacing: -0.004em;
-  max-width: 54ch;
+  letter-spacing: 0.002em;
+  max-width: var(--read-max);
 }
 .articleBody p { margin: 0 0 1.6em; }
 .articleBody p:last-child { margin-bottom: 0; }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { playCrack, warmAudio, type CrackVariant } from "@/lib/leafAudio";
 import styles from "./leafPile.module.css";
@@ -36,19 +36,15 @@ function leafWarmFilter(item: PileItem) {
   return `brightness(${b.toFixed(3)}) saturate(1.08)`;
 }
 
-/** Depth-aware drop shadows on the image only (not animated with hover filter). */
+/** Soft contact shadow — wide blur, low alpha (avoids graphic cut-out look). */
 function leafShadowStyle(item: PileItem, lifted = false): React.CSSProperties {
   const z = item.zNorm;
-  const lift = lifted ? 1.2 : 1;
-  const ox = (1 + z * 2.2) * lift;
-  const oy = (3 + z * 5.5) * lift;
-  const blur = 3 + z * 5;
-  const alpha = 0.13 + z * 0.15;
-  const oySoft = oy + 4 + z * 3;
-  const blurSoft = blur + 7 + z * 4;
+  const lift = lifted ? 1.15 : 1;
+  const oy = (2 + z * 3.5) * lift;
+  const blur = 8 + z * 10;
+  const alpha = 0.055 + z * 0.065;
   return {
-    "--leaf-ds": `${ox.toFixed(1)}px ${oy.toFixed(1)}px ${blur.toFixed(1)}px rgba(32, 20, 8, ${alpha.toFixed(3)})`,
-    "--leaf-ds-soft": `0px ${oySoft.toFixed(1)}px ${blurSoft.toFixed(1)}px rgba(32, 20, 8, ${(alpha * 0.42).toFixed(3)})`,
+    "--leaf-ds": `0px ${oy.toFixed(1)}px ${blur.toFixed(1)}px rgba(28, 18, 8, ${alpha.toFixed(3)})`,
   } as React.CSSProperties;
 }
 
@@ -107,6 +103,16 @@ interface PileItem {
   zNorm: number;
 }
 
+interface AmbientChip {
+  x: number;
+  y: number;
+  rot: number;
+  size: number;
+  opacity: number;
+  zIndex: number;
+  src: string;
+}
+
 function mulberry32(seed: number) {
   let a = seed >>> 0;
   return () => {
@@ -159,7 +165,7 @@ function buildMiniPiles(): MiniPile[] {
 
 const MINI_PILES = buildMiniPiles();
 const TOTAL_MINI_WEIGHT = MINI_PILES.reduce((s, c) => s + c.weight, 0);
-const STRAY_RATIO = 0.34;
+const STRAY_RATIO = 0.38;
 
 function pickMiniPile(r: number): MiniPile {
   let acc = 0;
@@ -189,19 +195,29 @@ const PILE: PileItem[] = (() => {
     const zNorm = (z3d - Z_FAR) / Z_RANGE;
 
     if (rng() < STRAY_RATIO) {
-      x = 4 + rng() * 92;
-      y = 46 + rng() * 42;
+      /* Wind-blown strays — looser, slightly biased drift */
+      x = 6 + rng() * 88 + (rng() - 0.35) * 6;
+      y = 48 + rng() * 40;
     } else {
       const c = pickMiniPile(rng());
       const angle = rng() * Math.PI * 2;
-      const rad = Math.sqrt(rng());
+      /* Denser pile cores — less uniform disk, more natural heaps */
+      const rad = Math.pow(rng(), 1.72);
       x = c.cx + Math.cos(angle) * rad * c.rx;
       y = c.cy + Math.sin(angle) * rad * c.ry;
+      /* Organic overlap — nudge toward heap center sometimes */
+      if (rng() < 0.42) {
+        x += (c.cx - x) * (0.12 + rng() * 0.18);
+        y += (c.cy - y) * (0.1 + rng() * 0.16);
+      }
     }
 
-    /* Front-on pile: vertical position comes from mini-pile layout only.
-       (Linking y to z used to read as “along the sidewalk” / corner view.) */
+    /* Imperfect scatter — breaks grid-like placement */
+    x += (rng() - 0.5) * 2.8;
+    y += (rng() - 0.5) * 2.2;
+
     y = Math.max(38, Math.min(94, y));
+    x = Math.max(3, Math.min(97, x));
 
     // Subtle tilt — frontal pile; strong tilt reads oblique / “from the side”
     const rotX = (rng() - 0.5) * 18;
@@ -235,6 +251,24 @@ const PILE: PileItem[] = (() => {
     item.zIndex = 1000 + i;
   });
   return items;
+})();
+
+/** Small resting chips — wind scatter, not clickable */
+const AMBIENT_CHIPS: AmbientChip[] = (() => {
+  const chips: AmbientChip[] = [];
+  for (let i = 0; i < 14; i++) {
+    const rng = mulberry32(i * 4177 + 90210);
+    chips.push({
+      x: 10 + rng() * 80,
+      y: 52 + rng() * 38,
+      rot: rng() * 360,
+      size: 12 + rng() * 20,
+      opacity: 0.28 + rng() * 0.38,
+      zIndex: 600 + Math.floor(rng() * 350),
+      src: LEAF_FILES[Math.floor(rng() * LEAF_FILES.length)],
+    });
+  }
+  return chips;
 })();
 
 // ── crack: shard transforms + fragment burst ─────────────────────────
@@ -509,6 +543,61 @@ function PileLeaf({ item, index }: { item: PileItem; index: number }) {
   );
 }
 
+function PileScene() {
+  const planeRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
+
+  const handlePileMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (reducedMotion || !planeRef.current) return;
+      const r = planeRef.current.getBoundingClientRect();
+      const nx = (e.clientX - r.left) / r.width - 0.5;
+      const ny = (e.clientY - r.top) / r.height - 0.5;
+      planeRef.current.style.setProperty("--parx", `${(nx * 5).toFixed(2)}px`);
+      planeRef.current.style.setProperty("--pary", `${(ny * 3).toFixed(2)}px`);
+    },
+    [reducedMotion],
+  );
+
+  const handlePileLeave = useCallback(() => {
+    if (!planeRef.current) return;
+    planeRef.current.style.setProperty("--parx", "0px");
+    planeRef.current.style.setProperty("--pary", "0px");
+  }, []);
+
+  return (
+    <div
+      className={styles.pile}
+      onMouseMove={handlePileMove}
+      onMouseLeave={handlePileLeave}
+    >
+      <div ref={planeRef} className={styles.pilePlane}>
+        {AMBIENT_CHIPS.map((chip, i) => (
+          <img
+            key={`chip-${i}`}
+            src={chip.src}
+            alt=""
+            draggable={false}
+            className={styles.ambientChip}
+            style={{
+              left: `${chip.x}%`,
+              top: `${chip.y}%`,
+              width: `${chip.size}px`,
+              height: `${chip.size}px`,
+              zIndex: chip.zIndex,
+              opacity: chip.opacity,
+              transform: `translate(-50%, -50%) rotate(${chip.rot}deg)`,
+            }}
+          />
+        ))}
+        {PILE.map((item, i) => (
+          <PileLeaf key={i} item={item} index={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function LeavesLayer() {
   return (
     <section className={styles.section} aria-label="A pile of dry leaves">
@@ -519,13 +608,7 @@ export default function LeavesLayer() {
         They&apos;re crunchy.
       </p>
 
-      <div className={styles.pile}>
-        <div className={styles.pilePlane}>
-          {PILE.map((item, i) => (
-            <PileLeaf key={i} item={item} index={i} />
-          ))}
-        </div>
-      </div>
+      <PileScene />
     </section>
   );
 }
