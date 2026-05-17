@@ -18,7 +18,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Arun S R",
   description:
-    "Arun S R — frontend engineer at SparrowDesk, Chennai. A small page of work, writing, and dry leaves.",
+    "Arun S R — frontend engineer at SparrowDesk. A small page of work, writing, and dry leaves.",
 };
 
 export default function RootLayout({

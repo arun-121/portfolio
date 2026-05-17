@@ -29,50 +29,76 @@
   line-height: 1.55;
 }
 
-/* ── pile container ──────────────────────────────────────────────────── */
+/* ── pile container ────────────────────────────────────────────────────
+   POV / “tilted floor”: one perspective + one rotateX on .pilePlane only.
+   Leaves stay 2D-stacked (z-index only, no per-leaf translateZ) so clicks
+   stay reliable. This reads like looking forward-down at the ground, not
+   a bird’s-eye / map view. */
 
 .pile {
   position: relative;
   width: 100%;
-  height: clamp(420px, 56vh, 620px);
-  /* broad faint shadow wash spanning the scatter footprint — wide and
-     low instead of a tight central pool, since leaves are spread across
-     the whole area now, not piled in one spot */
+  height: clamp(440px, 58vh, 640px);
+  overflow: visible;
+  /* Viewer distance — lower = stronger foreshortening of the tilted plane */
+  perspective: clamp(880px, 82vw, 1400px);
+  /* Eye line: slightly above center so the ground plane feels below the horizon */
+  perspective-origin: 50% 46%;
   background:
     radial-gradient(
-      ellipse 85% 12% at 50% 92%,
-      rgba(40, 25, 12, 0.10) 0%,
-      rgba(40, 25, 12, 0.04) 50%,
-      transparent 80%
+      ellipse 78% 10% at 50% 88%,
+      rgba(40, 25, 12, 0.11) 0%,
+      rgba(40, 25, 12, 0.04) 55%,
+      transparent 82%
     );
+}
+
+.pilePlane {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  /* Hinge at bottom: foreground near you, top of frame recedes — walking POV */
+  transform-origin: 50% 98%;
+  transform: rotateX(11deg) rotateZ(0.15deg);
 }
 
 /* ── one leaf ────────────────────────────────────────────────────────── */
 
+/* Leaf shell: layout + cursor. Transforms come from Framer Motion (satisfying springs). */
 .leaf {
   position: absolute;
-  left: var(--x);
-  top: var(--y);
-  width: var(--size);
-  height: var(--size);
-  /* depth-squash flattens leaves higher in the mound slightly on the
-     y-axis, faking the tilt they'd have if they were lying on a real
-     mound rather than facing the camera dead-on */
-  transform: translate(-50%, -50%) rotate(var(--rot)) scaleY(var(--depth-squash, 1));
-  z-index: var(--z);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  pointer-events: auto;
   background: none;
   border: none;
-  padding: 0;
   cursor: pointer;
   outline: none;
   transform-origin: center;
-  transition: transform 240ms cubic-bezier(0.4, 0, 0.4, 1),
-              filter 300ms ease-out;
   -webkit-tap-highlight-color: transparent;
-  /* depth-dim dims leaves further back in the pile so the front catches
-     more light, just like a real mound */
-  filter: drop-shadow(0 3px 4px rgba(40, 25, 12, 0.30))
-          brightness(var(--depth-dim, 1));
+  touch-action: manipulation;
+}
+
+/* The single image rendered when the leaf is at rest. CRITICAL: width
+   and height must be 100% of the button box, otherwise the browser
+   renders the image at its full natural size (~2000px source) and
+   blows the leaf box up. */
+.leafImg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  /* Shadow on the image — separate from button brightness filter for perf */
+  filter:
+    drop-shadow(var(--leaf-ds, 1px 4px 5px rgba(32, 20, 8, 0.2)))
+    drop-shadow(var(--leaf-ds-soft, 0 8px 12px rgba(32, 20, 8, 0.09)));
 }
 
 /* Six clipped copies of the same image stack on top of each other.
@@ -90,32 +116,7 @@
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
-  /* shards snap outward once and stay — sharp curve on the one-shot
-     transform change; no settle-back since cracked leaves stay cracked */
-  transition: transform 220ms cubic-bezier(0.55, 0, 0.35, 1);
-  will-change: transform;
-}
-
-.leaf:hover {
-  z-index: 9999;
-  transform: translate(-50%, -50%) rotate(var(--rot)) scaleY(var(--depth-squash, 1)) scale(1.08);
-  filter: drop-shadow(0 6px 8px rgba(40, 25, 12, 0.42))
-          brightness(1);
-}
-
-.leaf:active {
-  /* a quick crush at the moment of click */
-  transform: translate(-50%, -50%) rotate(var(--rot)) scaleY(var(--depth-squash, 1)) scale(0.92);
-  transition: transform 90ms cubic-bezier(0.5, 0, 0.5, 1);
-}
-
-/* once cracked: leaf is "done" — change cursor, drop the hover lift */
-.leaf.cracking {
-  cursor: default;
-}
-.leaf.cracking:hover {
-  z-index: var(--z);
-  transform: translate(-50%, -50%) rotate(var(--rot)) scaleY(var(--depth-squash, 1));
+  /* No drop-shadow — clip-path wedges cast triangular blobs when separated */
 }
 
 .leaf:focus-visible {
@@ -138,38 +139,33 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  /* SVG inside renders the polygon. The span is what we animate. */
-  animation: fragFly var(--dur, 800ms) cubic-bezier(0.22, 0.6, 0.4, 1)
-             var(--delay, 0ms) forwards;
-  will-change: transform, opacity;
-  filter: drop-shadow(0 1px 1px rgba(40, 25, 12, 0.35));
 }
 
 .fragment svg {
   display: block;
-  /* shift the svg so the polygon center sits at the span's anchor */
   transform: translate(-50%, -50%);
 }
 
-@keyframes fragFly {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
-    opacity: 0;
-  }
-  6% {
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--dx, 0), var(--dy, 0)) rotate(var(--rot, 0deg));
-    opacity: 0;
-  }
+.leaf.cracked {
+  cursor: default;
 }
 
 @media (max-width: 600px) {
-  .pile { height: clamp(360px, 60vw, 500px); }
+  .pile {
+    height: clamp(360px, 60vw, 500px);
+    perspective: clamp(760px, 92vw, 1100px);
+    perspective-origin: 50% 48%;
+  }
+  .pilePlane {
+    transform-origin: 50% 98%;
+    transform: rotateX(7deg) rotateZ(0.1deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .leaf, .leaf:hover, .leaf:active { transition: none; }
-  .fragment { animation: none; opacity: 0; }
+  .pile { perspective: none; }
+  .pilePlane { transform: none; transform-style: flat; }
+  .leafImg {
+    filter: drop-shadow(1px 3px 4px rgba(32, 20, 8, 0.14));
+  }
 }

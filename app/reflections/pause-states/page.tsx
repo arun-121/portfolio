@@ -74,7 +74,7 @@ export default function PauseStates() {
       </main>
 
       <footer>
-        <span>© 2026 Arun S R · Chennai</span>
+        <span>© 2026 Arun S R</span>
         <LocalClock />
       </footer>
     </>

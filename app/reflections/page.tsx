@@ -9,11 +9,6 @@ export const metadata: Metadata = {
 
 const posts = [
   {
-    slug: "on-slow-tooling",
-    title: "On slow tooling",
-    meta: "Reflection · 2026",
-  },
-  {
     slug: "pause-states",
     title: "Pause states",
     meta: "Reflection · 2025",
@@ -49,7 +44,7 @@ export default function Reflections() {
       </main>
 
       <footer>
-        <span>© 2026 Arun S R · Chennai</span>
+        <span>© 2026 Arun S R</span>
         <LocalClock />
       </footer>
     </>

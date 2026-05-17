@@ -1,12 +1,57 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { playCrack, warmAudio } from "@/lib/leafAudio";
+import { motion, useReducedMotion } from "framer-motion";
+import { playCrack, warmAudio, type CrackVariant } from "@/lib/leafAudio";
 import styles from "./leafPile.module.css";
 
-// Six real dry-leaf cutouts saved under public/leaves/. Mix of webp and
-// png — the browser handles both. Filenames hardcoded so we can pick
-// deterministically per pile item.
+/** Hover: a little lighter damping so the twist eases in kindly, not snappy-UI. */
+const springLeafHover = {
+  type: "spring" as const,
+  stiffness: 220,
+  damping: 20,
+  mass: 1.05,
+};
+const springLeafTap = {
+  type: "spring" as const,
+  stiffness: 520,
+  damping: 32,
+  mass: 0.58,
+};
+/** Crack: quick release with a hint of rebound — satisfying without chaos. */
+const springShard = {
+  type: "spring" as const,
+  stiffness: 420,
+  damping: 26,
+  mass: 0.62,
+};
+
+function leafRestFilter(item: PileItem) {
+  const b = 0.84 + item.zNorm * 0.16;
+  return `brightness(${b.toFixed(3)}) saturate(0.96)`;
+}
+
+function leafWarmFilter(item: PileItem) {
+  const b = 0.87 + item.zNorm * 0.1;
+  return `brightness(${b.toFixed(3)}) saturate(1.08)`;
+}
+
+/** Depth-aware drop shadows on the image only (not animated with hover filter). */
+function leafShadowStyle(item: PileItem, lifted = false): React.CSSProperties {
+  const z = item.zNorm;
+  const lift = lifted ? 1.2 : 1;
+  const ox = (1 + z * 2.2) * lift;
+  const oy = (3 + z * 5.5) * lift;
+  const blur = 3 + z * 5;
+  const alpha = 0.13 + z * 0.15;
+  const oySoft = oy + 4 + z * 3;
+  const blurSoft = blur + 7 + z * 4;
+  return {
+    "--leaf-ds": `${ox.toFixed(1)}px ${oy.toFixed(1)}px ${blur.toFixed(1)}px rgba(32, 20, 8, ${alpha.toFixed(3)})`,
+    "--leaf-ds-soft": `0px ${oySoft.toFixed(1)}px ${blurSoft.toFixed(1)}px rgba(32, 20, 8, ${(alpha * 0.42).toFixed(3)})`,
+  } as React.CSSProperties;
+}
+
 const LEAF_FILES = [
   "/leaves/leaf-1.webp",
   "/leaves/leaf-2.webp",
@@ -14,8 +59,6 @@ const LEAF_FILES = [
   "/leaves/leaf-5.png",
 ];
 
-// Fragment chips use a fixed warm-brown palette since we can't sample
-// pixels from the image at runtime. These match the dry-leaf range.
 const FRAGMENT_COLORS = [
   "#7E5530",
   "#5B3A1C",
@@ -25,56 +68,43 @@ const FRAGMENT_COLORS = [
   "#42260F",
 ];
 
-// Six wedge regions that tile the leaf image box. Each is a CSS polygon
-// clip-path string — the leaf gets rendered six times stacked, each copy
-// clipped to one wedge. When cracked, each wedge translates outward in
-// its own direction, carrying its slice of the photograph with it.
-//
-// Wedges meet at center (50%, 50%) and reach out to the box edges.
+// ── leaf-image fracture wedges ───────────────────────────────────────
 interface Shard {
   clip: string;
-  dx: number;       // direction unit vector
+  dx: number;
   dy: number;
-  baseRotation: number; // degrees
+  baseRotation: number;
 }
 const SHARDS: Shard[] = [
-  { // top
-    clip: "polygon(50% 50%, 40% 0%, 60% 0%)",
-    dx:  0,   dy: -1,    baseRotation: -8,
-  },
-  { // upper-right
-    clip: "polygon(50% 50%, 60% 0%, 100% 0%, 100% 30%)",
-    dx:  0.75, dy: -0.65, baseRotation: 22,
-  },
-  { // right-bottom
-    clip: "polygon(50% 50%, 100% 30%, 100% 100%, 60% 100%)",
-    dx:  1,    dy:  0.35, baseRotation: 16,
-  },
-  { // bottom
-    clip: "polygon(50% 50%, 60% 100%, 40% 100%)",
-    dx:  0,    dy:  1,    baseRotation: 10,
-  },
-  { // lower-left
-    clip: "polygon(50% 50%, 40% 100%, 0% 100%, 0% 30%)",
-    dx: -1,    dy:  0.35, baseRotation: -16,
-  },
-  { // upper-left
-    clip: "polygon(50% 50%, 0% 30%, 0% 0%, 40% 0%)",
-    dx: -0.75, dy: -0.65, baseRotation: -22,
-  },
+  { clip: "polygon(50% 50%, 40% 0%, 60% 0%)",                    dx:  0,    dy: -1,    baseRotation:  -8 },
+  { clip: "polygon(50% 50%, 60% 0%, 100% 0%, 100% 30%)",         dx:  0.75, dy: -0.65, baseRotation:  22 },
+  { clip: "polygon(50% 50%, 100% 30%, 100% 100%, 60% 100%)",     dx:  1,    dy:  0.35, baseRotation:  16 },
+  { clip: "polygon(50% 50%, 60% 100%, 40% 100%)",                dx:  0,    dy:  1,    baseRotation:  10 },
+  { clip: "polygon(50% 50%, 40% 100%, 0% 100%, 0% 30%)",         dx: -1,    dy:  0.35, baseRotation: -16 },
+  { clip: "polygon(50% 50%, 0% 30%, 0% 0%, 40% 0%)",             dx: -0.75, dy: -0.65, baseRotation: -22 },
 ];
 
-const LEAF_COUNT = 180;
+/** Leaf count — balance density vs scroll/hover repaint cost */
+const LEAF_COUNT = 42;
 
 interface PileItem {
-  x: number;       // % across the pile container
-  y: number;       // % down the pile container
+  x: number;
+  y: number;
   rot: number;
   size: number;
   zIndex: number;
   pitch: number;
+  /** 0–3 — distinct crack recipe per leaf */
+  crackVariant: CrackVariant;
   src: string;
-  depth: number;
+  /** Sort key only — no CSS translateZ (3D + z-index breaks hit-testing) */
+  z3d: number;
+  /** tilt around X axis (leaf leaning forward/back), degrees */
+  rotX: number;
+  /** tilt around Y axis (leaf turned left/right), degrees */
+  rotY: number;
+  /** 0..1, 0 = far back, 1 = close — brightness only */
+  zNorm: number;
 }
 
 function mulberry32(seed: number) {
@@ -89,99 +119,131 @@ function mulberry32(seed: number) {
   };
 }
 
-// ── small piles + scattered strays ───────────────────────────────────
-// Multiple low clusters across the bottom (no single tall hill), with
-// scattered strays in the gaps. Reads like leaves blown around with a
-// few mounds, not one heaped pile.
-//
-// Each cluster has a center, a radius (spread), and a weight (relative
-// share of cluster-placed leaves). Some leaves are placed as "strays"
-// uniformly across the area, not in any cluster — these are the leaves
-// blown away from the piles.
-
-interface Cluster {
-  cx: number; // center x %
-  cy: number; // center y % (lower = closer to camera)
-  rx: number; // horizontal radius %
-  ry: number; // vertical radius % (clusters are flatter than circular)
+// Many mini-piles, scattered. Depth for visuals = size + brightness; z3d is
+// only used to sort z-index (flat stacking — reliable pointer events).
+interface MiniPile {
+  cx: number;
+  cy: number;
+  rx: number;
+  ry: number;
   weight: number;
 }
 
-const CLUSTERS: Cluster[] = [
-  { cx: 18, cy: 80, rx: 13, ry: 7,  weight: 1.0 },
-  { cx: 38, cy: 72, rx: 17, ry: 10, weight: 1.6 }, // main cluster, slightly left of center
-  { cx: 58, cy: 76, rx: 15, ry: 8,  weight: 1.3 },
-  { cx: 78, cy: 82, rx: 12, ry: 7,  weight: 1.0 },
-  { cx: 50, cy: 62, rx: 9,  ry: 6,  weight: 0.6 }, // small cluster higher up, more sparse
-];
-const TOTAL_CLUSTER_WEIGHT = CLUSTERS.reduce((s, c) => s + c.weight, 0);
+/** Scatter ~18 tight mini-piles with minimum spacing — looks like separate heaps. */
+function buildMiniPiles(): MiniPile[] {
+  const out: MiniPile[] = [];
+  const rng = mulberry32(7781);
+  const targets = 18;
+  const placed: { cx: number; cy: number }[] = [];
+  const minDist = 9.2;
+  let guard = 0;
+  while (out.length < targets && guard < 500) {
+    guard += 1;
+    const cx = 7 + rng() * 86;
+    const cy = 44 + rng() * 42; /* full vertical spread — not a single horizontal band */
+    if (placed.some((p) => Math.hypot(p.cx - cx, p.cy - cy) < minDist)) continue;
+    placed.push({ cx, cy });
+    out.push({
+      cx,
+      cy,
+      rx: 2.8 + rng() * 3.8,
+      ry: 2.4 + rng() * 3.2,
+      weight: 0.5 + rng(),
+    });
+  }
+  if (out.length === 0) {
+    out.push({ cx: 50, cy: 68, rx: 8, ry: 6, weight: 1 });
+  }
+  return out;
+}
 
-// share of leaves that don't belong to any cluster — scattered strays
-const STRAY_RATIO = 0.30;
+const MINI_PILES = buildMiniPiles();
+const TOTAL_MINI_WEIGHT = MINI_PILES.reduce((s, c) => s + c.weight, 0);
+const STRAY_RATIO = 0.34;
 
-function pickCluster(r: number): Cluster {
+function pickMiniPile(r: number): MiniPile {
   let acc = 0;
-  const target = r * TOTAL_CLUSTER_WEIGHT;
-  for (const c of CLUSTERS) {
+  const target = r * TOTAL_MINI_WEIGHT;
+  for (const c of MINI_PILES) {
     acc += c.weight;
     if (target <= acc) return c;
   }
-  return CLUSTERS[CLUSTERS.length - 1];
+  return MINI_PILES[MINI_PILES.length - 1]!;
 }
 
 const PILE: PileItem[] = (() => {
   const items: PileItem[] = [];
 
+  // Z range: logical depth for ordering only (not applied as translateZ)
+  const Z_FAR = -170;
+  const Z_NEAR = 45;
+  const Z_RANGE = Z_NEAR - Z_FAR;
+
   for (let i = 0; i < LEAF_COUNT; i++) {
     const rng = mulberry32(i * 9301 + 49297);
-    let x: number, y: number;
+    let x: number;
+    let y: number;
+
+    /* Depth first — drives “horizon vs near your feet” placement */
+    const z3d = Z_FAR + rng() * Z_RANGE;
+    const zNorm = (z3d - Z_FAR) / Z_RANGE;
 
     if (rng() < STRAY_RATIO) {
-      // stray leaf: scattered anywhere across the bottom half of the area
-      x = 2 + rng() * 96;
-      // strays tend to be lower (fewer high strays — leaves don't float)
-      y = 48 + rng() * rng() * 50; // 48..98, biased toward middle
+      x = 4 + rng() * 92;
+      y = 46 + rng() * 42;
     } else {
-      // cluster leaf: pick a weighted cluster, place near its center
-      const c = pickCluster(rng());
-      // gaussian-ish offset within an ellipse (sqrt for area-uniform)
+      const c = pickMiniPile(rng());
       const angle = rng() * Math.PI * 2;
-      const r = Math.sqrt(rng());
-      x = c.cx + Math.cos(angle) * r * c.rx;
-      y = c.cy + Math.sin(angle) * r * c.ry;
+      const rad = Math.sqrt(rng());
+      x = c.cx + Math.cos(angle) * rad * c.rx;
+      y = c.cy + Math.sin(angle) * rad * c.ry;
     }
 
-    // depth derives from y (lower = closer to camera = bigger + brighter)
-    const depth = Math.max(0, Math.min(1, (95 - y) / 50));
+    /* Front-on pile: vertical position comes from mini-pile layout only.
+       (Linking y to z used to read as “along the sidewalk” / corner view.) */
+    y = Math.max(38, Math.min(94, y));
 
-    const sizeBase = 78 - depth * 26;
+    // Subtle tilt — frontal pile; strong tilt reads oblique / “from the side”
+    const rotX = (rng() - 0.5) * 18;
+    const rotY = (rng() - 0.5) * 22;
+
+    // size variation, then perspective scales it further by translateZ
+    const sizeBase = 84 - (1 - zNorm) * 16;
     const sizeJitter = (rng() - 0.5) * 24;
-    const size = Math.max(36, sizeBase + sizeJitter);
-
-    const zIndex = Math.floor((1 - depth) * 120 + rng() * 30);
+    const size = Math.max(38, sizeBase + sizeJitter);
 
     items.push({
       x,
       y,
       rot: rng() * 360,
       size,
-      zIndex,
+      zIndex: 0,
       pitch: 0.7 + rng() * 0.7,
+      crackVariant: Math.floor(rng() * 4) as CrackVariant,
       src: LEAF_FILES[Math.floor(rng() * LEAF_FILES.length)],
-      depth,
+      z3d,
+      rotX,
+      rotY,
+      zNorm,
     });
   }
 
-  items.sort((a, b) => a.zIndex - b.zIndex);
+  /* Stacking: 2D z-index only. Do NOT combine translateZ + preserve-3d here —
+     browsers paint 3D overlap inconsistent with z-index → most clicks miss. */
+  items.sort((a, b) => a.z3d - b.z3d);
+  items.forEach((item, i) => {
+    item.zIndex = 1000 + i;
+  });
   return items;
 })();
 
-// ── crack: shake + burst of fragments ────────────────────────────────
+// ── crack: shard transforms + fragment burst ─────────────────────────
 
 interface Fragment {
   id: number;
   dx: number;
   dy: number;
+  dz: number;
   rot: number;
   size: number;
   color: string;
@@ -203,131 +265,234 @@ function makeFragmentPoints(seed: number, baseRadius: number): string {
 }
 
 function rollFragments(): Fragment[] {
-  const count = 12 + Math.floor(Math.random() * 6); // 12–17
+  const count = 4 + Math.floor(Math.random() * 4);
   const out: Fragment[] = [];
   for (let i = 0; i < count; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const distance = 30 + Math.random() * 70;
-    const sizeBase = 3 + Math.random() * 6;
+    const distance = 28 + Math.random() * 60;
+    const sizeBase = 3 + Math.random() * 5;
     out.push({
       id: i,
       dx: Math.cos(angle) * distance,
-      dy: Math.sin(angle) * distance + Math.random() * 18,
+      dy: Math.sin(angle) * distance + Math.random() * 16,
+      dz: (Math.random() - 0.35) * 90,
       rot: (Math.random() - 0.5) * 1440,
       size: sizeBase,
       color: FRAGMENT_COLORS[Math.floor(Math.random() * FRAGMENT_COLORS.length)],
       points: makeFragmentPoints(Math.floor(Math.random() * 1e9), sizeBase),
-      duration: 620 + Math.random() * 480,
+      duration: 620 + Math.random() * 420,
       delay: Math.random() * 60,
     });
   }
   return out;
 }
 
-// Per-shard randomized trajectory rolled fresh on each crack so no two
-// breaks of the same leaf look identical.
 interface ShardTransform {
   tx: number;
   ty: number;
+  tz: number;
   rot: number;
+  rotX: number;
+  rotY: number;
 }
 
+/** 3D scatter: outward in the leaf plane + depth toward camera + tumble. */
 function rollShards(): ShardTransform[] {
   return SHARDS.map((s) => {
-    const distance = 28 + Math.random() * 18; // px outward
-    const jitter = (Math.random() - 0.5) * 0.3; // small direction jitter
+    const distance = 28 + Math.random() * 26;
+    const jitter = (Math.random() - 0.5) * 0.35;
     const dx = s.dx + jitter;
-    const dy = s.dy + jitter * 0.5;
+    const dy = s.dy + jitter * 0.45;
     const len = Math.hypot(dx, dy) || 1;
+    // Depth: mix of “lift off the pile” and toward/away from viewer (px in 3D space).
+    const lift = 12 + Math.random() * 36;
+    const towardCam = (Math.random() - 0.25) * 48;
+    const tz = towardCam + (Math.random() - 0.5) * 22;
     return {
       tx: (dx / len) * distance,
-      ty: (dy / len) * distance,
-      rot: s.baseRotation + (Math.random() - 0.5) * 36,
+      ty: (dy / len) * distance - lift * 0.15,
+      tz,
+      rot: s.baseRotation + (Math.random() - 0.5) * 52,
+      rotX: (Math.random() - 0.5) * 64,
+      rotY: (Math.random() - 0.5) * 58,
     };
   });
 }
 
-function PileLeaf({ item }: { item: PileItem }) {
-  const [cracking, setCracking] = useState(false);
+function PileLeaf({ item, index }: { item: PileItem; index: number }) {
+  const reducedMotion = useReducedMotion();
+  const [hovered, setHovered] = useState(false);
+  const [cracked, setCracked] = useState(false);
   const [fragments, setFragments] = useState<Fragment[] | null>(null);
   const [shardTransforms, setShardTransforms] = useState<ShardTransform[] | null>(
     null,
   );
   const [crackKey, setCrackKey] = useState(0);
 
+  const zIndex =
+    hovered && !cracked ? 12_050 : item.zIndex;
+
+  /** Per-leaf hover twist — like one corner lifting in a draft; no hover scale pop. */
+  const hoverTwist = useMemo(() => {
+    const rng = mulberry32(
+      index * 9743 + (item.z3d | 0) + Math.floor(item.rot * 17),
+    );
+    return {
+      rotX: (rng() - 0.5) * 5.5,
+      rotY: (rng() - 0.5) * 6,
+      rotZ: (rng() - 0.5) * 4.5,
+    };
+  }, [index, item.z3d, item.rot]);
+
   const handleClick = useCallback(() => {
-    if (cracking) return; // already cracked — stays cracked, no re-trigger
-    setCracking(true);
+    if (cracked) return;
+    setCracked(true);
     setShardTransforms(rollShards());
     setFragments(rollFragments());
     setCrackKey((k) => k + 1);
-    playCrack(item.pitch);
-    // shards stay in their cracked positions forever — no snap-back.
-    // only the dust fragments clean themselves up so they don't pile up
-    // in the DOM.
+    playCrack(item.pitch, item.crackVariant);
     window.setTimeout(() => setFragments(null), 1200);
-  }, [cracking, item.pitch]);
+  }, [cracked, item.pitch, item.crackVariant]);
+
+  const enableLeafMotion = !reducedMotion && !cracked;
+
+  const shadowStyle = useMemo(
+    () => leafShadowStyle(item, hovered && !cracked),
+    [item, hovered, cracked],
+  );
 
   return (
-    <button
+    <motion.button
       type="button"
-      className={`${styles.leaf} ${cracking ? styles.cracking : ""}`}
-      style={
-        {
-          "--x": `${item.x}%`,
-          "--y": `${item.y}%`,
-          "--rot": `${item.rot}deg`,
-          "--size": `${item.size}px`,
-          "--z": item.zIndex,
-          "--depth-dim": `${0.78 + (1 - item.depth) * 0.22}`,
-          "--depth-squash": `${1 - item.depth * 0.12}`,
-        } as React.CSSProperties
+      className={`${styles.leaf} ${cracked ? styles.cracked : ""}`}
+      style={{
+        left: `${item.x}%`,
+        top: `${item.y}%`,
+        width: `${item.size}px`,
+        height: `${item.size}px`,
+        zIndex,
+        transformStyle: cracked ? "preserve-3d" : "flat",
+        ...shadowStyle,
+      }}
+      initial={false}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        x: "-50%",
+        y: "-50%",
+        rotateX: item.rotX,
+        rotateY: item.rotY,
+        rotateZ: item.rot,
+        filter: leafRestFilter(item),
+      }}
+      whileHover={
+        enableLeafMotion
+          ? {
+              rotateX: item.rotX + hoverTwist.rotX,
+              rotateY: item.rotY + hoverTwist.rotY,
+              rotateZ: item.rot + hoverTwist.rotZ,
+              filter: leafWarmFilter(item),
+              transition: springLeafHover,
+            }
+          : undefined
       }
+      whileTap={
+        enableLeafMotion
+          ? {
+              rotateX: item.rotX + hoverTwist.rotX + 3.2,
+              rotateY: item.rotY + hoverTwist.rotY * 0.88,
+              rotateZ: item.rot + hoverTwist.rotZ * 0.75,
+              scale: 0.986,
+              filter: leafRestFilter(item),
+              transition: springLeafTap,
+            }
+          : undefined
+      }
+      onHoverStart={() => {
+        if (!cracked) setHovered(true);
+      }}
+      onHoverEnd={() => setHovered(false)}
       onClick={handleClick}
       onPointerEnter={warmAudio}
       aria-label="A dry leaf — press to crack"
     >
-      {/* Six clipped copies of the same image — at rest they tile back
-          into the whole leaf; on crack each carries its slice outward. */}
-      {SHARDS.map((shard, i) => {
-        const tx = shardTransforms?.[i]?.tx ?? 0;
-        const ty = shardTransforms?.[i]?.ty ?? 0;
-        const rot = shardTransforms?.[i]?.rot ?? 0;
-        const cracked = !!shardTransforms;
-        return (
-          <img
-            key={i}
-            src={item.src}
-            alt=""
-            draggable={false}
-            className={styles.shard}
-            style={
-              {
+      {cracked && shardTransforms ? (
+        SHARDS.map((shard, i) => {
+          const t = shardTransforms[i]!;
+          return (
+            <motion.img
+              key={i}
+              src={item.src}
+              alt=""
+              draggable={false}
+              className={styles.shard}
+              style={{
                 clipPath: shard.clip,
                 WebkitClipPath: shard.clip,
-                transform: cracked
-                  ? `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) rotate(${rot.toFixed(1)}deg)`
-                  : "translate(0, 0) rotate(0deg)",
-              } as React.CSSProperties
-            }
-          />
-        );
-      })}
-      {fragments && (
+              }}
+              initial={
+                reducedMotion
+                  ? {
+                      x: t.tx,
+                      y: t.ty,
+                      z: t.tz,
+                      rotateX: t.rotX,
+                      rotateY: t.rotY,
+                      rotateZ: t.rot,
+                    }
+                  : {
+                      x: 0,
+                      y: 0,
+                      z: 0,
+                      rotateX: 0,
+                      rotateY: 0,
+                      rotateZ: 0,
+                    }
+              }
+              animate={{
+                x: t.tx,
+                y: t.ty,
+                z: t.tz,
+                rotateX: t.rotX,
+                rotateY: t.rotY,
+                rotateZ: t.rot,
+              }}
+              transition={{
+                ...springShard,
+                delay: reducedMotion ? 0 : i * 0.026,
+              }}
+            />
+          );
+        })
+      ) : (
+        <img
+          src={item.src}
+          alt=""
+          draggable={false}
+          className={styles.leafImg}
+        />
+      )}
+      {fragments && !reducedMotion && (
         <span className={styles.fragments} key={crackKey} aria-hidden="true">
           {fragments.map((f) => (
-            <span
+            <motion.span
               key={f.id}
               className={styles.fragment}
-              style={
-                {
-                  "--dx": `${f.dx.toFixed(2)}px`,
-                  "--dy": `${f.dy.toFixed(2)}px`,
-                  "--rot": `${f.rot.toFixed(1)}deg`,
-                  "--dur": `${f.duration.toFixed(0)}ms`,
-                  "--delay": `${f.delay.toFixed(0)}ms`,
-                } as React.CSSProperties
-              }
+              initial={{ opacity: 0, scale: 0.25, x: 0, y: 0, z: 0, rotate: 0 }}
+              animate={{
+                opacity: [0, 1, 0],
+                x: f.dx,
+                y: f.dy,
+                z: f.dz,
+                rotate: f.rot,
+                scale: [0.35, 1.08, 0.52],
+              }}
+              transition={{
+                duration: f.duration / 1000,
+                delay: f.delay / 1000,
+                times: [0, 0.11, 1],
+                ease: ["easeOut", "easeInOut"],
+              }}
             >
               <svg
                 width={f.size * 2.4}
@@ -336,11 +501,11 @@ function PileLeaf({ item }: { item: PileItem }) {
               >
                 <polygon points={f.points} fill={f.color} />
               </svg>
-            </span>
+            </motion.span>
           ))}
         </span>
       )}
-    </button>
+    </motion.button>
   );
 }
 
@@ -351,13 +516,15 @@ export default function LeavesLayer() {
         I gathered some leaves for you to crack.
       </p>
       <p className={styles.inviteSub}>
-        They snap a little differently each time.
+        They&apos;re crunchy.
       </p>
 
       <div className={styles.pile}>
-        {PILE.map((item, i) => (
-          <PileLeaf key={i} item={item} />
-        ))}
+        <div className={styles.pilePlane}>
+          {PILE.map((item, i) => (
+            <PileLeaf key={i} item={item} index={i} />
+          ))}
+        </div>
       </div>
     </section>
   );

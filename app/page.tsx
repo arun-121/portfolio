@@ -10,13 +10,17 @@ export default function Home() {
 
         <div className="prose">
           <p>
-            A frontend engineer at{" "}
-            <a href="https://surveysparrow.com/">SparrowDesk</a> in Chennai. I
-            work on product modules, reusable systems, and integrations across a
-            customer support platform.
+            I&apos;m a developer interested in thoughtful systems, calm
+            experiences, and well-crafted details.
+          </p>
+          <p>
+            I&apos;m currently part of the team building{" "}
+            <a href="https://sparrowdesk.com/">SparrowDesk</a>, where
+            I work on product modules and reusable systems.
           </p>
           <p className="muted">
-            Outside of work I read, take long walks, and slowly write here.
+            Outside of work, I overthink — but in a good way, go for long walks,
+            and slowly write here from time to time.
           </p>
         </div>
 
@@ -26,26 +30,6 @@ export default function Home() {
             worth saying.
           </p>
           <ul>
-            <li>
-              <a href="#" aria-disabled="true">
-                <span className="w-title">
-                  What I learned shipping a Gmail Add-on
-                </span>
-                <span className="w-meta">Technical · 2026</span>
-              </a>
-            </li>
-            <li>
-              <Link href="/reflections/on-slow-tooling">
-                <span className="w-title">On slow tooling</span>
-                <span className="w-meta">Reflection · 2026</span>
-              </Link>
-            </li>
-            <li>
-              <a href="#" aria-disabled="true">
-                <span className="w-title">Migrating SparrowDesk to Rspack</span>
-                <span className="w-meta">Technical · 2025</span>
-              </a>
-            </li>
             <li>
               <Link href="/reflections/pause-states">
                 <span className="w-title">Pause states</span>
@@ -59,16 +43,16 @@ export default function Home() {
           Say hello at{" "}
           <a href="mailto:arunramesh900@gmail.com">arunramesh900@gmail.com</a>,
           or find me on{" "}
-          <a href="https://github.com/" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/arun-121" target="_blank" rel="noopener noreferrer">
             GitHub
-          </a>
-          ,{" "}
-          <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer">
+          </a>{" "}
+          and{" "}
+          <a
+            href="https://www.linkedin.com/in/arun-ramesh900/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             LinkedIn
-          </a>
-          , and{" "}
-          <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer">
-            X
           </a>
           . My{" "}
           <a href="/Arun-S-R-Resume.docx" download>
@@ -81,7 +65,7 @@ export default function Home() {
       <LeavesLayer />
 
       <footer>
-        <span>© 2026 Arun S R · Chennai</span>
+        <span>© 2026 Arun S R</span>
         <LocalClock />
       </footer>
     </>
