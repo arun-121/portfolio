@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import LocalClock from "@/components/LocalClock";
+import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Reflections — Arun S R",
@@ -19,7 +19,7 @@ export default function Reflections() {
   return (
     <>
       <main>
-        <Link href="/" className="back">← Arun</Link>
+        <Link href="/" className="back">← Home</Link>
 
         <h1 className="greeting" style={{ fontSize: "clamp(48px, 9vw, 88px)", marginBottom: "32px" }}>
           Reflections.
@@ -43,10 +43,7 @@ export default function Reflections() {
         </section>
       </main>
 
-      <footer>
-        <span>© 2026 Arun S R</span>
-        <LocalClock />
-      </footer>
+      <SiteFooter />
     </>
   );
 }

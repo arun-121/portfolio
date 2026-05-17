@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { getSiteUrl, SITE } from "@/lib/site";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -15,10 +16,33 @@ const inter = Inter({
   display: "swap",
 });
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: "Arun S R",
-  description:
-    "Arun S R — frontend engineer at SparrowDesk. A small page of work, writing, and dry leaves.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: SITE.name,
+    template: `%s — ${SITE.name}`,
+  },
+  description: SITE.description,
+  authors: [{ name: SITE.name }],
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: siteUrl,
+    siteName: SITE.name,
+    title: SITE.name,
+    description: SITE.description,
+  },
+  twitter: {
+    card: "summary",
+    title: SITE.name,
+    description: SITE.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import LocalClock from "@/components/LocalClock";
+import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Pause states — Arun S R",
@@ -73,10 +73,7 @@ export default function PauseStates() {
         </div>
       </main>
 
-      <footer>
-        <span>© 2026 Arun S R</span>
-        <LocalClock />
-      </footer>
+      <SiteFooter />
     </>
   );
 }

@@ -1,5 +1,6 @@
 import LeavesLayer from "@/components/Leaves/LeavesLayer";
-import LocalClock from "@/components/LocalClock";
+import SiteFooter from "@/components/SiteFooter";
+import { SITE } from "@/lib/site";
 import Link from "next/link";
 
 export default function Home() {
@@ -15,7 +16,7 @@ export default function Home() {
           </p>
           <p>
             I&apos;m currently part of the team building{" "}
-            <a href="https://sparrowdesk.com/">SparrowDesk</a>, where
+            <a href={SITE.links.sparrowdesk}>SparrowDesk</a>, where
             I work on product modules and reusable systems.
           </p>
           <p className="muted">
@@ -41,17 +42,12 @@ export default function Home() {
 
         <p className="find">
           Say hello at{" "}
-          <a href="mailto:arunramesh900@gmail.com">arunramesh900@gmail.com</a>,
-          or find me on{" "}
-          <a href="https://github.com/arun-121" target="_blank" rel="noopener noreferrer">
+          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>, or find me on{" "}
+          <a href={SITE.links.github} target="_blank" rel="noopener noreferrer">
             GitHub
           </a>{" "}
           and{" "}
-          <a
-            href="https://www.linkedin.com/in/arun-ramesh900/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href={SITE.links.linkedin} target="_blank" rel="noopener noreferrer">
             LinkedIn
           </a>
           . My{" "}
@@ -64,10 +60,7 @@ export default function Home() {
 
       <LeavesLayer />
 
-      <footer>
-        <span>© 2026 Arun S R</span>
-        <LocalClock />
-      </footer>
+      <SiteFooter />
     </>
   );
 }
