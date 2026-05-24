@@ -5,12 +5,12 @@ import { motion, useReducedMotion } from "framer-motion";
 import { playCrack, warmAudio, type CrackVariant } from "@/lib/leafAudio";
 import styles from "./leafPile.module.css";
 
-/** Hover: a little lighter damping so the twist eases in kindly, not snappy-UI. */
+/** Hover: crisp and responsive — leaf snaps into position, no heavy drag. */
 const springLeafHover = {
   type: "spring" as const,
-  stiffness: 220,
-  damping: 20,
-  mass: 1.05,
+  stiffness: 380,
+  damping: 28,
+  mass: 0.72,
 };
 const springLeafTap = {
   type: "spring" as const,
@@ -414,6 +414,10 @@ function PileLeaf({
         height: `${item.size}px`,
         zIndex,
         transformStyle: cracked ? "preserve-3d" : "flat",
+        /* Filter values passed as CSS variables — CSS transition handles them,
+           keeping filter changes off the JS animation thread entirely. */
+        ["--leaf-filter-rest" as string]: leafRestFilter(item),
+        ["--leaf-filter-hover" as string]: leafWarmFilter(item),
         ...shadowStyle,
       }}
       initial={false}
@@ -425,7 +429,6 @@ function PileLeaf({
         rotateX: item.rotX,
         rotateY: item.rotY,
         rotateZ: item.rot,
-        filter: leafRestFilter(item),
       }}
       whileHover={
         enableLeafMotion
@@ -433,7 +436,6 @@ function PileLeaf({
               rotateX: item.rotX + hoverTwist.rotX,
               rotateY: item.rotY + hoverTwist.rotY,
               rotateZ: item.rot + hoverTwist.rotZ,
-              filter: leafWarmFilter(item),
               transition: springLeafHover,
             }
           : undefined
@@ -445,7 +447,6 @@ function PileLeaf({
               rotateY: item.rotY + hoverTwist.rotY * 0.88,
               rotateZ: item.rot + hoverTwist.rotZ * 0.75,
               scale: 0.986,
-              filter: leafRestFilter(item),
               transition: springLeafTap,
             }
           : undefined
@@ -561,20 +562,29 @@ function PileLeaf({
 function PileScene() {
   const planeRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
+  const rafRef = useRef<number>(0);
 
   const handlePileMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (reducedMotion || !planeRef.current) return;
-      const r = planeRef.current.getBoundingClientRect();
-      const nx = (e.clientX - r.left) / r.width - 0.5;
-      const ny = (e.clientY - r.top) / r.height - 0.5;
-      planeRef.current.style.setProperty("--parx", `${(nx * 5).toFixed(2)}px`);
-      planeRef.current.style.setProperty("--pary", `${(ny * 3).toFixed(2)}px`);
+      /* Capture coords before the RAF fires — the synthetic event may be recycled. */
+      const cx = e.clientX;
+      const cy = e.clientY;
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        if (!planeRef.current) return;
+        const r = planeRef.current.getBoundingClientRect();
+        const nx = (cx - r.left) / r.width - 0.5;
+        const ny = (cy - r.top) / r.height - 0.5;
+        planeRef.current.style.setProperty("--parx", `${(nx * 5).toFixed(2)}px`);
+        planeRef.current.style.setProperty("--pary", `${(ny * 3).toFixed(2)}px`);
+      });
     },
     [reducedMotion],
   );
 
   const handlePileLeave = useCallback(() => {
+    cancelAnimationFrame(rafRef.current);
     if (!planeRef.current) return;
     planeRef.current.style.setProperty("--parx", "0px");
     planeRef.current.style.setProperty("--pary", "0px");

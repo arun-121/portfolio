@@ -91,7 +91,8 @@
   transform-origin: 50% 98%;
   transform: rotateX(11deg) rotateZ(0.12deg)
     translate3d(var(--parx), var(--pary), 0);
-  transition: transform 1.4s var(--ease-slow, ease);
+  /* Shortened from 1.4s — snappy parallax tracking, smooth snap-back */
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Tiny wind-scattered chips — not interactive */
@@ -120,6 +121,14 @@
   transform-origin: center;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  will-change: transform;
+  /* Filter managed via CSS so the browser can composite it off the main thread */
+  filter: var(--leaf-filter-rest, brightness(0.88) saturate(0.97));
+  transition: filter 0.22s ease;
+}
+
+.leaf:not(.cracked):hover {
+  filter: var(--leaf-filter-hover, brightness(0.94) saturate(1.07));
 }
 
 .leafImg {
@@ -170,6 +179,8 @@
 
 .leaf.cracked {
   cursor: default;
+  /* Cracked leaf button stays in DOM but must not block the leaf below */
+  pointer-events: none;
 }
 
 @media (max-width: 600px) {
