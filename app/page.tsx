@@ -19,10 +19,7 @@ export default function Home() {
             <a href={SITE.links.sparrowdesk}>SparrowDesk</a>, where
             I work on product modules and reusable systems.
           </p>
-          <p className="muted">
-            Outside of work, I overthink — but in a good way, go for long walks,
-            and slowly write here from time to time.
-          </p>
+
         </div>
 
         <section className="writing" aria-label="Writing">
