@@ -47,9 +47,8 @@ export default function Home() {
             </span>
           </Reveal>
           <Reveal kind="up" delay={60} as="p" className="heroSub">
-            I work on a customer support product. I look after
-            billing and payments, build third&#8209;party integrations, and make the
-            reusable pieces other features are built from.
+            I work on a customer support product: the billing module, third&#8209;party
+            integrations, and the reusable pieces other features are built from.
           </Reveal>
           <Reveal kind="up" delay={120} className="introActions">
             <a className="btnSolid" href={SITE.links.github} target="_blank" rel="noopener noreferrer">

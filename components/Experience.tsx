@@ -18,7 +18,7 @@ const COMPANIES: Company[] = [
         start: "May 2025",
         end: "Present",
         built: [
-          "I handle billing and payments for SparrowDesk.",
+          "I work on the billing module.",
           "I build third\u2011party integrations that get listed on app marketplaces.",
         ],
       },
