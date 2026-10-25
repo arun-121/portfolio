@@ -40,7 +40,7 @@ components/
 lib/
   leafAudio.ts          — synthesized crack sound with convolver reverb
 public/
-  Arun-S-R-Resume.docx
+  Arun-S-R-Resume.pdf
 ```
 
 ## What's where, conceptually

@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import Reveal from "@/components/Reveal";
 import { playCrack, warmAudio, type CrackVariant } from "@/lib/leafAudio";
 import styles from "./leafPile.module.css";
 
@@ -27,13 +28,13 @@ const springShard = {
 };
 
 function leafRestFilter(item: PileItem) {
-  const b = 0.84 + item.zNorm * 0.16;
-  return `brightness(${b.toFixed(3)}) saturate(0.96)`;
+  const b = 1.0 + item.zNorm * 0.1;
+  return `brightness(${b.toFixed(3)}) saturate(1.14)`;
 }
 
 function leafWarmFilter(item: PileItem) {
-  const b = 0.87 + item.zNorm * 0.1;
-  return `brightness(${b.toFixed(3)}) saturate(1.08)`;
+  const b = 1.1 + item.zNorm * 0.08;
+  return `brightness(${b.toFixed(3)}) saturate(1.28)`;
 }
 
 /** Soft contact shadow — wide blur, low alpha (avoids graphic cut-out look). */
@@ -299,7 +300,7 @@ function makeFragmentPoints(seed: number, baseRadius: number): string {
 }
 
 function rollFragments(): Fragment[] {
-  const count = 4 + Math.floor(Math.random() * 4);
+  const count = 9 + Math.floor(Math.random() * 6);
   const out: Fragment[] = [];
   for (let i = 0; i < count; i++) {
     const angle = Math.random() * Math.PI * 2;
@@ -357,10 +358,12 @@ function PileLeaf({
   item,
   index,
   totalLeaves,
+  onCrack,
 }: {
   item: PileItem;
   index: number;
   totalLeaves: number;
+  onCrack: (el: HTMLElement) => void;
 }) {
   const reducedMotion = useReducedMotion();
   const [hovered, setHovered] = useState(false);
@@ -386,15 +389,20 @@ function PileLeaf({
     };
   }, [index, item.z3d, item.rot]);
 
-  const handleClick = useCallback(() => {
+  const handleClick = useCallback((e?: React.SyntheticEvent<HTMLElement>) => {
     if (cracked) return;
+    const target = (e?.currentTarget ?? null) as HTMLElement | null;
     setCracked(true);
     setShardTransforms(rollShards());
     setFragments(rollFragments());
     setCrackKey((k) => k + 1);
     playCrack(item.pitch, item.crackVariant);
-    window.setTimeout(() => setFragments(null), 1200);
-  }, [cracked, item.pitch, item.crackVariant]);
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      navigator.vibrate?.(9);
+    }
+    if (target) onCrack(target);
+    window.setTimeout(() => setFragments(null), 1500);
+  }, [cracked, item.pitch, item.crackVariant, onCrack]);
 
   const enableLeafMotion = !reducedMotion && !cracked;
 
@@ -418,6 +426,7 @@ function PileLeaf({
            keeping filter changes off the JS animation thread entirely. */
         ["--leaf-filter-rest" as string]: leafRestFilter(item),
         ["--leaf-filter-hover" as string]: leafWarmFilter(item),
+        ["--ld" as string]: `${(index % 14) * 55 + Math.floor(item.x) * 6}ms`,
         ...shadowStyle,
       }}
       initial={false}
@@ -446,7 +455,7 @@ function PileLeaf({
               rotateX: item.rotX + hoverTwist.rotX + 3.2,
               rotateY: item.rotY + hoverTwist.rotY * 0.88,
               rotateZ: item.rot + hoverTwist.rotZ * 0.75,
-              scale: 0.986,
+              scale: 0.93,
               transition: springLeafTap,
             }
           : undefined
@@ -455,7 +464,10 @@ function PileLeaf({
         if (!cracked) setHovered(true);
       }}
       onHoverEnd={() => setHovered(false)}
-      onClick={handleClick}
+      onPointerDown={handleClick}
+      onClick={(e) => {
+        if (e.detail === 0) handleClick(e);
+      }}
       onPointerEnter={warmAudio}
       {...(cracked
         ? { tabIndex: -1, "aria-hidden": true }
@@ -499,17 +511,41 @@ function PileLeaf({
                       rotateZ: 0,
                     }
               }
-              animate={{
-                x: t.tx,
-                y: t.ty,
-                z: t.tz,
-                rotateX: t.rotX,
-                rotateY: t.rotY,
-                rotateZ: t.rot,
-              }}
+              animate={
+                reducedMotion
+                  ? {
+                      x: t.tx,
+                      y: t.ty,
+                      z: t.tz,
+                      rotateX: t.rotX,
+                      rotateY: t.rotY,
+                      rotateZ: t.rot,
+                      opacity: 0,
+                    }
+                  : {
+                      x: t.tx,
+                      y: [0, t.ty - 18, t.ty + 30],
+                      z: t.tz,
+                      rotateX: t.rotX,
+                      rotateY: t.rotY,
+                      rotateZ: t.rot * 1.4,
+                      opacity: [1, 1, 0.72],
+                    }
+              }
               transition={{
                 ...springShard,
                 delay: reducedMotion ? 0 : i * 0.026,
+                y: {
+                  duration: 1.3,
+                  times: [0, 0.26, 1],
+                  ease: [[0.23, 1, 0.32, 1], [0.55, 0, 1, 0.45]],
+                  delay: i * 0.026,
+                },
+                opacity: {
+                  duration: 1.3,
+                  times: [0, 0.72, 1],
+                  delay: i * 0.026,
+                },
               }}
             />
           );
@@ -524,6 +560,7 @@ function PileLeaf({
       )}
       {fragments && !reducedMotion && (
         <span className={styles.fragments} key={crackKey} aria-hidden="true">
+          <span className={styles.ring} />
           {fragments.map((f) => (
             <motion.span
               key={f.id}
@@ -532,16 +569,17 @@ function PileLeaf({
               animate={{
                 opacity: [0, 1, 0],
                 x: f.dx,
-                y: f.dy,
+                y: [0, f.dy - 26, f.dy + 80],
                 z: f.dz,
                 rotate: f.rot,
                 scale: [0.35, 1.08, 0.52],
               }}
               transition={{
-                duration: f.duration / 1000,
+                duration: f.duration / 1000 + 0.2,
                 delay: f.delay / 1000,
-                times: [0, 0.11, 1],
-                ease: ["easeOut", "easeInOut"],
+                opacity: { times: [0, 0.11, 1], ease: ["easeOut", "easeInOut"] },
+                scale: { times: [0, 0.11, 1], ease: ["easeOut", "easeInOut"] },
+                y: { times: [0, 0.32, 1], ease: [[0.23, 1, 0.32, 1], [0.55, 0, 1, 0.45]] },
               }}
             >
               <svg
@@ -559,8 +597,74 @@ function PileLeaf({
   );
 }
 
-function PileScene() {
+/** A calm, sparse handful for the hero: every third leaf of the full pile. */
+const SPARSE: PileItem[] = PILE.filter((_, i) => i % 3 === 0);
+/** A fuller scatter for the wide footer band: every second leaf. */
+const FOOTER_SET: PileItem[] = (() => {
+  const base = PILE.filter((_, i) => i % 3 !== 0).slice(0, 16);
+  return base.map((it, i) => ({
+    ...it,
+    x: 6 + ((i + 0.5) * 88) / base.length,
+    y: 46 + ((i * 37) % 30),
+    size: Math.min(it.size, 72) * 0.92,
+  }));
+})();
+
+function PileScene({
+  onCount,
+  items = PILE,
+}: {
+  onCount: (n: number) => void;
+  items?: PileItem[];
+}) {
   const planeRef = useRef<HTMLDivElement>(null);
+  const pileRef = useRef<HTMLDivElement>(null);
+  const crackedRef = useRef(0);
+  useEffect(() => {
+    const el = pileRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          el.dataset.in = "true";
+          io.disconnect();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  const handleCrack = useCallback(
+    (leafEl: HTMLElement) => {
+      crackedRef.current += 1;
+      onCount(crackedRef.current);
+      const root = pileRef.current;
+      if (!root) return;
+      const c = leafEl.getBoundingClientRect();
+      const cx = c.left + c.width / 2;
+      const cy = c.top + c.height / 2;
+      // Nearby leaves get pushed away from the crack, then settle back.
+      root.querySelectorAll<HTMLElement>("button").forEach((el) => {
+        if (el === leafEl) return;
+        const r = el.getBoundingClientRect();
+        const dx = r.left + r.width / 2 - cx;
+        const dy = r.top + r.height / 2 - cy;
+        const d = Math.hypot(dx, dy);
+        if (d > 150 || d === 0) return;
+        const push = (1 - d / 150) * 14;
+        el.animate(
+          [
+            { translate: "0px 0px" },
+            { translate: `${(dx / d) * push}px ${(dy / d) * push}px`, offset: 0.35 },
+            { translate: "0px 0px" },
+          ],
+          { duration: 460, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+        );
+      });
+    },
+    [onCount],
+  );
   const reducedMotion = useReducedMotion();
   const rafRef = useRef<number>(0);
 
@@ -592,6 +696,7 @@ function PileScene() {
 
   return (
     <div
+      ref={pileRef}
       className={styles.pile}
       role="group"
       aria-label="Leaf pile"
@@ -618,12 +723,13 @@ function PileScene() {
             }}
           />
         ))}
-        {PILE.map((item, i) => (
+        {items.map((item, i) => (
           <PileLeaf
             key={i}
             item={item}
             index={i}
-            totalLeaves={PILE.length}
+            totalLeaves={items.length}
+            onCrack={handleCrack}
           />
         ))}
       </div>
@@ -631,7 +737,73 @@ function PileScene() {
   );
 }
 
-export default function LeavesLayer() {
+export default function LeavesLayer({
+  overlay = false,
+  footer = false,
+}: {
+  overlay?: boolean;
+  footer?: boolean;
+}) {
+  const [count, setCount] = useState(0);
+  /** Each full clear-out starts a new season: a gust, then a fresh pile. */
+  const [season, setSeason] = useState(0);
+  const [gust, setGust] = useState(false);
+
+  useEffect(() => {
+    if (overlay || footer || count < LEAF_COUNT) return;
+    const blow = window.setTimeout(() => setGust(true), 1100);
+    const fresh = window.setTimeout(() => {
+      setGust(false);
+      setCount(0);
+      setSeason((n) => n + 1);
+    }, 1900);
+    return () => {
+      window.clearTimeout(blow);
+      window.clearTimeout(fresh);
+    };
+  }, [count, overlay, footer]);
+
+  /** No tally: the line only changes when the pile is cleared and refilled. */
+  const cleared = count >= LEAF_COUNT;
+  const pileStatus = cleared
+    ? "All swept. Thank you."
+    : season > 0
+      ? "A fresh pile. Go on."
+      : "They\u2019re crunchy.";
+  const hint = count === 0 ? "Crack a leaf" : null;
+
+  if (footer) {
+    return (
+      <section className={styles.footerBand} aria-label="Leaves to crack" aria-describedby="leaf-pile-hint">
+        <p id="leaf-pile-hint" className="sr-only">
+          {FOOTER_SET.length} dry leaves are scattered along the bottom of the page.
+          Activate any leaf to crack it. Cracked leaves are removed from keyboard navigation.
+        </p>
+        <PileScene onCount={setCount} items={FOOTER_SET} />
+        <p className={styles.footerCaption} aria-live="polite">
+          {hint}
+        </p>
+      </section>
+    );
+  }
+
+  if (overlay) {
+    return (
+      <section className={styles.overlay} aria-label="Leaves to crack" aria-describedby="leaf-pile-hint">
+        <p id="leaf-pile-hint" className="sr-only">
+          {SPARSE.length} dry leaves are scattered on the path. Activate any leaf to
+          crack it. Cracked leaves are removed from keyboard navigation.
+        </p>
+        <PileScene onCount={setCount} items={SPARSE} />
+        {hint && (
+          <p className={styles.caption} aria-live="polite">
+            {hint}
+          </p>
+        )}
+      </section>
+    );
+  }
+
   return (
     <section
       className={styles.section}
@@ -641,13 +813,21 @@ export default function LeavesLayer() {
       <p id="leaf-invite-heading" className={styles.invite}>
         I gathered some leaves for you to crack.
       </p>
-      <p className={styles.inviteSub}>They&apos;re crunchy.</p>
+      <p className={styles.inviteSub} aria-live="polite">
+        <span key={`${season}-${cleared}`} className={cleared || season > 0 ? styles.bump : undefined}>
+          {pileStatus}
+        </span>
+      </p>
       <p id="leaf-pile-hint" className="sr-only">
         {LEAF_COUNT} dry leaves are scattered below. Activate any leaf to
         crack it. Cracked leaves are removed from keyboard navigation.
       </p>
 
-      <PileScene />
+      <Reveal kind="fade" delay={150}>
+        <div className={gust ? styles.gusting : undefined}>
+          <PileScene key={season} onCount={setCount} />
+        </div>
+      </Reveal>
     </section>
   );
 }

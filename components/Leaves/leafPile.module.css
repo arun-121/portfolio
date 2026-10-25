@@ -3,68 +3,37 @@
 .section {
   position: relative;
   z-index: 1;
-  max-width: min(1100px, 100%);
+  max-width: 1200px;
   margin: 0 auto;
-  padding: clamp(64px, 10vh, 96px) clamp(24px, 6vw, 48px)
-    clamp(112px, 14vh, 160px);
-}
-
-/* Soft threshold before the leaves — visitor drifts in */
-.section::before {
-  content: "";
-  display: block;
-  width: min(100%, var(--read-max, 36rem));
-  height: 1px;
-  margin: 0 auto clamp(56px, 8vh, 80px);
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(42, 31, 21, 0.08) 35%,
-    rgba(42, 31, 21, 0.08) 65%,
-    transparent 100%
-  );
-}
-
-/* Gentle fade from prose into leaves — transparent, no painted panel */
-.section::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: clamp(80px, 12vh, 140px);
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    var(--bg) 0%,
-    transparent 100%
-  );
-  opacity: 0.35;
+  padding: 64px var(--gutter) 0;
+  text-align: center;
 }
 
 .invite {
   position: relative;
   z-index: 1;
   font-family: var(--serif);
-  font-variation-settings: "opsz" 52, "wght" 400, "SOFT" 70;
-  font-size: clamp(24px, 2.8vw, 34px);
-  line-height: 1.32;
-  color: var(--ink-soft);
-  margin: 0 0 14px;
-  letter-spacing: 0.004em;
-  max-width: 22ch;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 8px;
+  max-width: 16em;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .inviteSub {
   position: relative;
   z-index: 1;
-  font-family: var(--serif);
-  font-variation-settings: "opsz" 24, "wght" 400, "SOFT" 65;
-  font-size: clamp(15px, 1.6vw, 17px);
-  color: var(--ink-dim);
-  margin: 0 0 clamp(40px, 6vh, 56px);
-  max-width: 28ch;
-  line-height: 1.62;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0 auto 32px;
+}
+
+@media (min-width: 768px) {
+  .invite { font-size: 44px; }
 }
 
 /* ── pile container ──────────────────────────────────────────────────── */
@@ -73,6 +42,7 @@
   position: relative;
   width: 100%;
   height: clamp(460px, 58vh, 660px);
+  margin-top: -96px;
   overflow: visible;
   perspective: clamp(920px, 84vw, 1500px);
   perspective-origin: 50% 46%;
@@ -212,3 +182,197 @@
     filter: drop-shadow(0 2px 6px rgba(32, 20, 8, 0.08));
   }
 }
+
+/* A tiny jolt through the pile each time a leaf cracks */
+.shake {
+  animation: pileShake 240ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes pileShake {
+  0% { transform: translate3d(0, 0, 0); }
+  22% { transform: translate3d(-1.5px, 1px, 0); }
+  48% { transform: translate3d(1.5px, -1px, 0); }
+  74% { transform: translate3d(-0.6px, 0.4px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shake { animation: none; }
+}
+
+/* Leaves tumble down into place the first time the pile scrolls into view.
+   The individual `translate` property avoids fighting the transform that
+   framer motion owns. */
+.pile:not([data-in="true"]) .leaf { opacity: 0 !important; }
+.pile[data-in="true"] .leaf {
+  animation: leafFall 1100ms cubic-bezier(0.34, 1.25, 0.64, 1) var(--ld, 0ms) both;
+}
+@keyframes leafFall {
+  from { opacity: 0; translate: 0 -190px; scale: 1.18; }
+  55% { opacity: 1; }
+  to { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+/* A soft ripple of dust where a leaf broke */
+.ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 90px;
+  height: 90px;
+  margin: -45px 0 0 -45px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 244, 214, 0.9);
+  background: radial-gradient(circle, rgba(255, 240, 200, 0.45), rgba(255, 240, 200, 0) 70%);
+  animation: ringOut 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes ringOut {
+  from { transform: scale(0.15); opacity: 0.95; }
+  to { transform: scale(1.9); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pile:not([data-in="true"]) .leaf { opacity: 1 !important; }
+  .pile[data-in="true"] .leaf, .ring { animation: none; }
+}
+
+/* Leaves scattered on the path inside the hero painting: one scene, not two. */
+.overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 36%;
+  z-index: 2;
+  pointer-events: none;
+  padding: 0 28px;
+}
+.overlay .pile {
+  height: 100%;
+  margin-top: 0;
+}
+.overlay .leaf { pointer-events: auto; }
+.caption {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 250, 232, 0.6);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #3f4a2a;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 3;
+}
+@media (max-width: 600px) {
+  .overlay { height: 32%; padding: 0 12px; }
+  .overlay .pile { height: 100% !important; }
+}
+
+/* quieter: a low band of leaves and a barely-there hint */
+.overlay { height: 26%; }
+.caption { background: rgba(255, 250, 232, 0.4); color: rgba(63, 74, 42, 0.8); font-size: 12px; padding: 4px 12px; bottom: 12px; }
+
+/* Leaves lie along the bottom of the page, in the footer. */
+.footerBand {
+  position: relative;
+  padding: 0 28px;
+  height: clamp(220px, 32vh, 300px);
+  margin-top: 24px;
+}
+.footerBand .pile { height: 100%; margin-top: 0; }
+.footerBand .pile { perspective-origin: 50% 40%; }
+.footerCaption {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  transform: translateX(-50%);
+  margin: 0;
+  color: rgba(63, 74, 42, 0.75);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+@media (max-width: 600px) {
+  .footerBand { padding: 0 12px; height: 240px; }
+  .footerBand .pile { height: 100% !important; }
+}
+
+/* slim strip: leaves rest right on the footer line instead of filling a screen */
+.footerBand { height: clamp(104px, 15vh, 136px); margin-top: 0; padding-top: 0; }
+.footerCaption { bottom: -2px; }
+@media (max-width: 600px) { .footerBand { height: 120px; } }
+
+/* same column as the painting */
+.footerBand { max-width: 1072px; margin-left: auto; margin-right: auto; padding-left: 16px; padding-right: 16px; }
+@media (max-width: 600px) { .footerBand { padding-left: 12px; padding-right: 12px; } }
+
+/* tidy strip: leaves stay inside the column, caption sits clear of them and of the rule */
+.footerBand { height: clamp(150px, 20vh, 180px); padding-bottom: 32px; margin-top: 8px; }
+.footerBand .pile { height: 100% !important; margin: 0 24px; width: auto; }
+.footerCaption { bottom: 6px; }
+@media (max-width: 600px) { .footerBand { height: 168px; } .footerBand .pile { margin: 0 8px; } }
+
+/* press feels physical: leaf lifts on hover, drops on press */
+@media (hover: hover) and (pointer: fine) {
+  .footerBand .leaf:not(.cracked):hover { filter: var(--leaf-filter-hover) drop-shadow(0 6px 8px rgba(60, 40, 10, 0.25)); }
+}
+
+/* No page or strip shake: feedback stays on the leaves themselves */
+.shake { animation: none !important; }
+.leaf { transition: filter 180ms ease; }
+
+/* a cracked leaf drifts back down: swaying fall, then settles */
+.regrowA { animation: leafDriftA 1500ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+.regrowB { animation: leafDriftB 1500ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+@keyframes leafDriftA {
+  0% { opacity: 0; translate: -18px -120px; }
+  30% { opacity: 1; translate: 14px -70px; }
+  60% { translate: -8px -24px; }
+  100% { opacity: 1; translate: 0 0; }
+}
+@keyframes leafDriftB {
+  0% { opacity: 0; translate: 18px -120px; }
+  30% { opacity: 1; translate: -14px -70px; }
+  60% { translate: 8px -24px; }
+  100% { opacity: 1; translate: 0 0; }
+}
+/* the counter answers each crack */
+.bump { display: inline-block; animation: countBump 320ms cubic-bezier(0.23, 1, 0.32, 1); }
+@keyframes countBump { from { transform: translateY(4px); opacity: 0.4; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .regrowA, .regrowB, .bump { animation: none; }
+}
+
+/* the gathered pile, as on the live site, sized to the page column */
+.leafFooterWrap, .section { max-width: 752px; margin: 0 auto; padding: 32px 24px 48px; text-align: left; }
+.section .invite { margin: 0 0 4px; font-size: 26px; line-height: 32px; color: var(--ink); max-width: 18em; margin-left: 0; }
+.section .inviteSub { margin: 0; font-size: 15px; line-height: 24px; color: var(--muted); }
+.section .pile { height: clamp(360px, 46vh, 460px); margin-top: -96px; }
+@media (max-width: 600px) {
+  .section { padding: 24px 12px 32px; }
+  .section .invite { font-size: 22px; line-height: 28px; }
+  .section .pile { height: 380px !important; margin-top: -72px; }
+}
+
+/* heading lines up with the intro column */
+.section { padding-left: 40px; padding-right: 40px; }
+@media (max-width: 600px) { .section { padding-left: 20px; padding-right: 20px; } }
+
+/* tighter: the pile sits just under its heading */
+.section .pile { margin-top: -150px; }
+@media (max-width: 600px) { .section .pile { margin-top: -110px; } }
+
+/* broken pieces rest on the ground, a little faded, so progress stays visible */
+.cracked .shard { filter: brightness(0.92) saturate(0.85); }
+
+/* the finishing moment: a gust clears the litter before a fresh pile falls in */
+.gusting .pilePlane { animation: gust 800ms cubic-bezier(0.55, 0, 1, 0.45) forwards; }
+@keyframes gust {
+  to { opacity: 0; translate: 140px -24px; filter: blur(2px); }
+}
+@media (prefers-reduced-motion: reduce) { .gusting .pilePlane { animation: none; opacity: 0; } }

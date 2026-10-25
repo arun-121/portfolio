@@ -1,9 +1,11 @@
-import SiteTime from "@/components/SiteTime";
+import LeavesLayer from "@/components/Leaves/LeavesLayer";
 
-export default function SiteFooter() {
+/** Just the leaves: a small thing to do at the end of the page. */
+export default function SiteFooter({ leaves = false }: { leaves?: boolean }) {
+  if (!leaves) return null;
   return (
-    <footer>
-      <SiteTime />
+    <footer className="leafFooter" id="leaves">
+      <LeavesLayer />
     </footer>
   );
 }
