@@ -1,63 +1,82 @@
-import LeavesLayer from "@/components/Leaves/LeavesLayer";
-import SiteFooter from "@/components/SiteFooter";
-import { SITE } from "@/lib/site";
+import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
+import Experience from "@/components/Experience";
+import Panel from "@/components/Panel";
+import Reveal from "@/components/Reveal";
+import SiteFooter from "@/components/SiteFooter";
+import { getSiteUrl, SITE } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: { absolute: `${SITE.name} | ${SITE.role}` },
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: SITE.name,
+    url: getSiteUrl(),
+    email: `mailto:${SITE.email}`,
+    jobTitle: SITE.role,
+    address: { "@type": "PostalAddress", addressLocality: "Chennai", addressCountry: "IN" },
+    sameAs: [SITE.links.github, SITE.links.linkedin],
+  };
+
   return (
     <>
-      <main>
-        <h1 className="greeting">Hi, I&apos;m Arun.</h1>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
 
-        <div className="prose">
-          <p>
-            I&apos;m a developer interested in thoughtful systems, calm
-            experiences, and well-crafted details.
-          </p>
-          <p>
-            I&apos;m currently part of the team building{" "}
-            <a href={SITE.links.sparrowdesk}>SparrowDesk</a>, where
-            I work on product modules and reusable systems.
-          </p>
+      <main id="main" className="column">
+        {/* Banner: the painting */}
+        <div className="unit">
+        <Panel variant="golden" golden className="banner" />
 
-        </div>
-
-        <section className="writing" aria-label="Writing">
-          <p className="lead">
-            A few things I&apos;m writing — slowly, and as I have something
-            worth saying.
-          </p>
-          <ul>
-            <li>
-              <Link href="/reflections/pause-states">
-                <span className="w-title">Pause states</span>
-                <span className="w-meta">Reflection · 2025</span>
-              </Link>
-            </li>
-          </ul>
+        <section className="intro introCard" id="intro" aria-labelledby="hero-title">
+          <Reveal kind="up" delay={0} className="profileRow">
+            <img className="avatar foxAvatar" src="/avatar.jpg" alt="" width={64} height={64} />
+            <span className="profileText">
+              <h1 id="hero-title" className="profileName">Hi, I&rsquo;m Arun.</h1>
+              <span className="profileTitle">{SITE.role}</span>
+            </span>
+          </Reveal>
+          <Reveal kind="up" delay={60} as="p" className="heroSub">
+            I work on a customer support product: the billing module, third&#8209;party
+            integrations, and the reusable pieces other features are built from.
+          </Reveal>
+          <Reveal kind="up" delay={120} className="introActions">
+            <a className="btnSolid" href={SITE.links.github} target="_blank" rel="noopener noreferrer">
+              GitHub
+              <ArrowUpRight size={16} weight="bold" aria-hidden />
+            </a>
+            <a className="btnOutline" href="/Arun-S-R-Resume.pdf" target="_blank" rel="noopener noreferrer">
+              Résumé
+              <ArrowUpRight size={16} weight="bold" aria-hidden />
+            </a>
+          </Reveal>
+          <Reveal kind="up" delay={160} as="p" className="quietLinks">
+            <a href={`mailto:${SITE.email}`}>Email</a>
+            <a href={SITE.links.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          </Reveal>
         </section>
 
-        <p className="find">
-          Say hello at{" "}
-          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>, or find me on{" "}
-          <a href={SITE.links.github} target="_blank" rel="noopener noreferrer">
-            GitHub
-          </a>{" "}
-          and{" "}
-          <a href={SITE.links.linkedin} target="_blank" rel="noopener noreferrer">
-            LinkedIn
-          </a>
-          . My{" "}
-          <a href="/Arun-S-R-Resume.docx" download>
-            résumé is here
-          </a>{" "}
-          if you&apos;d like it.
-        </p>
+        <Experience />
+        </div>
       </main>
 
-      <LeavesLayer />
+      <div className="drift" aria-hidden="true">
+        {[0, 1, 2, 3, 4, 5].map((n) => (
+          <img key={n} className={`driftLeaf driftLeaf${n}`} src={`/leaves/leaf-${[1, 2, 3, 5, 2, 3][n]}.${[1, 2, 3, 5, 2, 3][n] === 5 ? "png" : "webp"}`} alt="" />
+        ))}
+      </div>
 
-      <SiteFooter />
+      <SiteFooter leaves />
     </>
   );
 }

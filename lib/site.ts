@@ -1,15 +1,15 @@
 /** Site-wide copy and links — single source of truth for production. */
 export const SITE = {
   name: "Arun S R",
+  role: "Full-stack product engineer",
   location: "Chennai, India",
   timeZone: "Asia/Kolkata",
   description:
-    "Developer at SparrowDesk. A small page of work, writing, and dry leaves.",
+    "Arun S R is a full-stack product engineer in Chennai, India, working on billing, payments and third-party integrations.",
   email: "arunramesh900@gmail.com",
   links: {
     github: "https://github.com/arun-121",
     linkedin: "https://www.linkedin.com/in/arun-ramesh900/",
-    sparrowdesk: "https://sparrowdesk.com/",
   },
 } as const;
 
