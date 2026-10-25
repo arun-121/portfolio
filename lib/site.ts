@@ -1,10 +1,11 @@
 /** Site-wide copy and links — single source of truth for production. */
 export const SITE = {
   name: "Arun S R",
+  role: "Full-stack product engineer",
   location: "Chennai, India",
   timeZone: "Asia/Kolkata",
   description:
-    "Arun S R is a developer who builds product modules and reusable systems, and writes slowly about software and attention.",
+    "Arun S R is a full-stack product engineer in Chennai, India, working on billing, payments and third-party integrations.",
   email: "arunramesh900@gmail.com",
   links: {
     github: "https://github.com/arun-121",

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import Reveal from "@/components/Reveal";
 import { playCrack, warmAudio, type CrackVariant } from "@/lib/leafAudio";
 import styles from "./leafPile.module.css";
 
@@ -426,7 +425,6 @@ function PileLeaf({
            keeping filter changes off the JS animation thread entirely. */
         ["--leaf-filter-rest" as string]: leafRestFilter(item),
         ["--leaf-filter-hover" as string]: leafWarmFilter(item),
-        ["--ld" as string]: `${(index % 14) * 55 + Math.floor(item.x) * 6}ms`,
         ...shadowStyle,
       }}
       initial={false}
@@ -630,7 +628,7 @@ function PileScene({
           io.disconnect();
         }
       },
-      { threshold: 0.25 },
+      { threshold: 0.1 },
     );
     io.observe(el);
     return () => io.disconnect();
@@ -823,11 +821,9 @@ export default function LeavesLayer({
         crack it. Cracked leaves are removed from keyboard navigation.
       </p>
 
-      <Reveal kind="fade" delay={150}>
-        <div className={gust ? styles.gusting : undefined}>
-          <PileScene key={season} onCount={setCount} />
-        </div>
-      </Reveal>
+      <div className={gust ? styles.gusting : undefined}>
+        <PileScene key={season} onCount={setCount} />
+      </div>
     </section>
   );
 }

@@ -4,7 +4,6 @@ import Reveal from "@/components/Reveal";
 type Company = {
   name: string;
   logo: string;
-  place: string;
   /** Newest first. The rail fills upward, from the first role to the current one. */
   roles: { title: string; start: string; end: string; built: string[] }[];
 };
@@ -13,7 +12,6 @@ const COMPANIES: Company[] = [
   {
     name: "SparrowDesk",
     logo: "/logos/sparrowdesk.png",
-    place: "Chennai, India",
     roles: [
       {
         title: "Member of Technical Staff",
@@ -52,14 +50,13 @@ export default function Experience() {
       <ol className="expList">
         {COMPANIES.map((co, i) => {
           return (
-            <Reveal as="li" key={co.name} delay={i * 60} className="expCompany">
+            <Reveal as="li" kind="fade" key={co.name} delay={i * 60} className="expCompany">
               <div className="expTop">
                 <span className="expLogo">
                   <img src={co.logo} alt="" width={16} height={16} />
                 </span>
                 <span className="expMain">
                   <span className="expCo">{co.name}</span>
-                  <span className="expLoc">{co.place}</span>
                 </span>
               </div>
               <ol className="expRoles">

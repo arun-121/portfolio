@@ -2,12 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SITE } from "@/lib/site";
-
-const LINKS = [
-  { href: `mailto:${SITE.email}`, label: "Contact" },
-];
-
+import PlaceTime from "@/components/PlaceTime";
 
 export default function SiteNav() {
   const pathname = usePathname();
@@ -25,26 +20,7 @@ export default function SiteNav() {
           </svg>
           <span className="navName">Arun S R</span>
         </Link>
-        <nav aria-label="Primary">
-          <ul>
-            {LINKS.map((l) => {
-              const current =
-                l.href.startsWith("/") &&
-                (pathname === l.href || pathname.startsWith(`${l.href}/`));
-              return (
-                <li key={l.href}>
-                  {l.href.startsWith("/") ? (
-                    <Link href={l.href} aria-current={current ? "page" : undefined}>
-                      {l.label}
-                    </Link>
-                  ) : (
-                    <a href={l.href}>{l.label}</a>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+        <PlaceTime place="Chennai" className="navPlace" />
         <button type="button" className="kbd" onClick={() => window.dispatchEvent(new Event("open-palette"))} aria-label="Open command palette">
           <span aria-hidden="true">⌘</span>K
         </button>

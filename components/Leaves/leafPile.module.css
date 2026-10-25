@@ -198,18 +198,7 @@
   .shake { animation: none; }
 }
 
-/* Leaves tumble down into place the first time the pile scrolls into view.
-   The individual `translate` property avoids fighting the transform that
-   framer motion owns. */
-.pile:not([data-in="true"]) .leaf { opacity: 0 !important; }
-.pile[data-in="true"] .leaf {
-  animation: leafFall 1100ms cubic-bezier(0.34, 1.25, 0.64, 1) var(--ld, 0ms) both;
-}
-@keyframes leafFall {
-  from { opacity: 0; translate: 0 -190px; scale: 1.18; }
-  55% { opacity: 1; }
-  to { opacity: 1; translate: 0 0; scale: 1; }
-}
+/* Leaves rest on the ground from the start: no fall-in. */
 
 /* A soft ripple of dust where a leaf broke */
 .ring {
@@ -229,8 +218,7 @@
   to { transform: scale(1.9); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pile:not([data-in="true"]) .leaf { opacity: 1 !important; }
-  .pile[data-in="true"] .leaf, .ring { animation: none; }
+  .ring { animation: none; }
 }
 
 /* Leaves scattered on the path inside the hero painting: one scene, not two. */

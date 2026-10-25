@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Young_Serif } from "next/font/google";
+import { Geist_Mono, Schibsted_Grotesk, Young_Serif } from "next/font/google";
 import CommandPalette from "@/components/CommandPalette";
 import SiteNav from "@/components/SiteNav";
 import { getSiteUrl, SITE } from "@/lib/site";
 import "./scenery.css";
 import "./globals.css";
 
-const geist = Geist({
+const sans = Schibsted_Grotesk({
   subsets: ["latin"],
-  variable: "--font-geist",
+  variable: "--font-sans",
   display: "swap",
 });
 
@@ -26,7 +26,7 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${SITE.name} | Developer`,
+    default: `${SITE.name} | ${SITE.role}`,
     template: `%s | ${SITE.name}`,
   },
   description: SITE.description,
@@ -36,12 +36,12 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: siteUrl,
     siteName: SITE.name,
-    title: `${SITE.name} | Developer`,
+    title: `${SITE.name} | ${SITE.role}`,
     description: SITE.description,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE.name} | Developer`,
+    title: `${SITE.name} | ${SITE.role}`,
     description: SITE.description,
     images: ["/opengraph-image"],
   },
@@ -62,7 +62,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geist.variable} ${serif.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${serif.variable} ${mono.variable}`}>
       <body>
         <a href="#main" className="skipLink">
           Skip to content

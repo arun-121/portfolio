@@ -28,7 +28,7 @@ export default function OpengraphImage() {
             Calm products start with thoughtful systems.
           </div>
           <div style={{ display: "flex", marginTop: 32, fontSize: 32, color: "#5C5A45" }}>
-            Developer · {SITE.location}
+            {SITE.role} · {SITE.location}
           </div>
         </div>
       </div>

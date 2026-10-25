@@ -97,7 +97,7 @@ export default function Panel({
   /** Floating pollen by day, fireflies by night. */
   motesKind?: "pollen" | "fireflies";
   className?: string;
-  children: ReactNode;
+  children?: ReactNode;
 } & HTMLAttributes<HTMLElement>) {
   const motesList = motesKind === "fireflies" ? FIREFLIES : motesKind === "pollen" ? POLLEN : [];
   return (

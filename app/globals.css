@@ -10,7 +10,7 @@
   --cream: #fbf8ec;
 
   --serif: var(--font-serif), "Times New Roman", serif;
-  --sans: var(--font-geist), system-ui, sans-serif;
+  --sans: var(--font-sans), system-ui, sans-serif;
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.32, 0.72, 0, 1);
@@ -665,6 +665,13 @@ a { color: inherit; text-decoration: none; }
 @media (pointer: coarse) { .kbd { display: none; } }
 .nav .navInner { gap: 0; }
 .nav nav { margin-left: auto; }
+/* where I am and the time there: quiet status, right of the name */
+.navPlace { margin-left: auto; display: inline-flex; align-items: center; gap: 14px; font-size: 14px; line-height: 20px; color: var(--muted); }
+.placeTimeItem { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.placeTimeItem svg { flex: none; }
+.placeTimeItem time { display: inline-block; min-width: 8ch; font-variant-numeric: tabular-nums; }
+.navPlace { padding-left: 16px; }
+@media (max-width: 479px) { .navPlace { gap: 10px; font-size: 13px; } .navPlace svg { display: none; } .kbd { display: none; } }
 
 .logBlock { margin: 32px 24px 0; }
 .logHead { margin: 0 0 8px; font-size: 12px; line-height: 16px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
@@ -686,7 +693,7 @@ a { color: inherit; text-decoration: none; }
 .palList { margin: 0; padding: 8px; list-style: none; max-height: 320px; overflow: auto; }
 .palItem { width: 100%; display: flex; justify-content: space-between; gap: 16px; padding: 10px 12px; border: 0; border-radius: 8px; background: transparent; color: var(--ink); font: 15px/20px var(--sans); text-align: left; cursor: pointer; }
 .palItem[data-active="true"] { background: var(--paper-2); }
-.palHint { color: var(--faint); font: 12px/20px var(--font-mono), ui-monospace, monospace; }
+.palHint { color: var(--muted); font: 12px/20px var(--font-mono), ui-monospace, monospace; }
 .palEmpty { padding: 12px; color: var(--faint); font-size: 14px; }
 @media (max-width: 639px) { .logBlock { margin: 24px 12px 0; } .logRow { grid-template-columns: 44px 1fr auto; } }
 
@@ -886,7 +893,6 @@ html, body { background: var(--paper); }
 .expLogo img { width: 16px; height: 16px; display: block; }
 .expMain { grid-column: 2; display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 12px; min-width: 0; }
 .expCo { font-family: var(--serif); font-size: 22px; line-height: 28px; letter-spacing: -0.01em; color: var(--ink); }
-.expLoc { font-size: 14px; line-height: 20px; color: var(--muted); }
 
 /* roles */
 .expRoles { position: relative; margin: 20px 0 0; padding: 0; list-style: none; }
@@ -935,10 +941,10 @@ html, body { background: var(--paper); }
 .expRoleRow:not(:last-child)::after {
   top: var(--mid); bottom: calc(-1 * var(--mid)); background: var(--accent);
   transform: scaleY(0); transform-origin: 50% 100%;
-  transition: transform 900ms cubic-bezier(0.77, 0, 0.175, 1) 300ms;
+  transition: transform 700ms cubic-bezier(0.77, 0, 0.175, 1) 200ms;
 }
 .expCompany[data-in="true"] .expRoleRow:not(:last-child)::after { transform: scaleY(1); }
-.expRoleRow[aria-current] .expNode { transform: scale(0.5); opacity: 0.4; transition: transform 320ms cubic-bezier(0.23, 1, 0.32, 1) 1100ms, opacity 200ms ease 1100ms; }
+.expRoleRow[aria-current] .expNode { transform: scale(0.5); opacity: 0.4; transition: transform 320ms cubic-bezier(0.23, 1, 0.32, 1) 800ms, opacity 200ms ease 800ms; }
 .expCompany[data-in="true"] .expRoleRow[aria-current] .expNode { transform: none; opacity: 1; }
 
 @media (max-width: 639px) {
@@ -952,4 +958,22 @@ html, body { background: var(--paper); }
   .expRoleRow[aria-current] .expNode { transform: none; opacity: 1; transition: none; }
   .expBuiltWrap, .expRoleMark { transition: none; }
   .expBuilt { transform: none; filter: none; transition: opacity 150ms ease; }
+}
+
+/* ═════════ motion, tuned: short entrances that settle rather than fly in ═════════ */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .reveal-rise, .reveal-up, .reveal-card {
+    transform: translateY(12px); filter: blur(4px);
+    transition-duration: 520ms, 520ms, 360ms; transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .reveal-fade { transition-duration: 480ms; transition-timing-function: ease; }
+}
+.quietLinks a { transition: color 180ms ease, background-size 260ms cubic-bezier(0.23, 1, 0.32, 1), opacity 120ms ease; }
+.quietLinks a:active { opacity: 0.7; }
+
+/* the cat avatar: warmed toward the parchment, a hairline edge instead of a raised frame */
+.introCard .foxAvatar {
+  border: 0; box-shadow: none;
+  outline: 1px solid rgba(36, 48, 31, 0.12); outline-offset: -1px;
+  filter: sepia(0.22) saturate(0.88) brightness(1.02);
 }

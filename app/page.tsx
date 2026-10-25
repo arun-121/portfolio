@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import Experience from "@/components/Experience";
-import LiveClock from "@/components/LiveClock";
 import Panel from "@/components/Panel";
 import Reveal from "@/components/Reveal";
 import SiteFooter from "@/components/SiteFooter";
 import { getSiteUrl, SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: { absolute: `${SITE.name} | Developer` },
+  title: { absolute: `${SITE.name} | ${SITE.role}` },
   alternates: { canonical: "/" },
 };
 
@@ -20,7 +19,7 @@ export default function Home() {
     name: SITE.name,
     url: getSiteUrl(),
     email: `mailto:${SITE.email}`,
-    jobTitle: "Developer",
+    jobTitle: SITE.role,
     address: { "@type": "PostalAddress", addressLocality: "Chennai", addressCountry: "IN" },
     sameAs: [SITE.links.github, SITE.links.linkedin],
   };
@@ -35,24 +34,20 @@ export default function Home() {
       />
 
       <main id="main" className="column">
-        {/* Banner: the painting, with Chennai time */}
+        {/* Banner: the painting */}
         <div className="unit">
-        <Panel variant="golden" golden className="banner">
-          <div className="bannerTime">
-            <LiveClock />
-          </div>
-        </Panel>
+        <Panel variant="golden" golden className="banner" />
 
         <section className="intro introCard" id="intro" aria-labelledby="hero-title">
           <Reveal kind="up" delay={0} className="profileRow">
             <img className="avatar foxAvatar" src="/avatar.jpg" alt="" width={64} height={64} />
             <span className="profileText">
-              <h1 id="hero-title" className="profileName">{SITE.name}</h1>
-              <span className="profileTitle">Software Engineer in {SITE.location}</span>
+              <h1 id="hero-title" className="profileName">Hi, I&rsquo;m Arun.</h1>
+              <span className="profileTitle">{SITE.role}</span>
             </span>
           </Reveal>
           <Reveal kind="up" delay={60} as="p" className="heroSub">
-            I&rsquo;m a full-stack engineer on a customer support product. I look after
+            I work on a customer support product. I look after
             billing and payments, build third&#8209;party integrations, and make the
             reusable pieces other features are built from.
           </Reveal>
@@ -61,7 +56,7 @@ export default function Home() {
               GitHub
               <ArrowUpRight size={16} weight="bold" aria-hidden />
             </a>
-            <a className="btnOutline" href="/Arun-S-R-Resume.pdf" download>
+            <a className="btnOutline" href="/Arun-S-R-Resume.pdf" target="_blank" rel="noopener noreferrer">
               Résumé
               <ArrowUpRight size={16} weight="bold" aria-hidden />
             </a>

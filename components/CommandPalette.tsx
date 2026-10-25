@@ -20,7 +20,7 @@ export default function CommandPalette() {
       { id: "copy", label: "Copy email address", hint: "clipboard", run: () => navigator.clipboard?.writeText(SITE.email) },
       { id: "gh", label: "Open GitHub", hint: "github.com", run: () => window.open(SITE.links.github, "_blank", "noopener") },
       { id: "in", label: "Open LinkedIn", hint: "linkedin.com", run: () => window.open(SITE.links.linkedin, "_blank", "noopener") },
-      { id: "cv", label: "Download résumé", hint: ".pdf", run: () => (location.href = "/Arun-S-R-Resume.pdf") },
+      { id: "cv", label: "Open résumé", hint: ".pdf", run: () => window.open("/Arun-S-R-Resume.pdf", "_blank", "noopener") },
       { id: "leaves", label: "Crack some leaves", hint: "#leaves", run: () => (location.hash = "leaves") },
     ],
     [router],
