@@ -74,6 +74,12 @@ const FIREFLIES = motes(16, 91);
  * add drifting clouds and sun rays, swaying hills, trees and grass, birds,
  * floating pollen or fireflies. Everything is decorative and aria-hidden.
  */
+/** Tiny petals carried across the painting on a slow breeze: [top %, size px, duration s, delay s]. */
+const PETALS: [number, number, number, number][] = [
+  [18, 5, 14, 0], [28, 4, 17, -6], [36, 6, 12, -3], [44, 4, 19, -11], [52, 5, 15, -8],
+  [60, 3, 18, -2], [66, 5, 13, -9], [24, 3, 21, -15], [48, 4, 16, -13], [72, 4, 20, -5],
+];
+
 export default function Panel({
   variant = "meadow",
   scenery = false,
@@ -106,6 +112,14 @@ export default function Panel({
       {golden && (
         <>
           <span className="panelSun" aria-hidden="true" />
+          {PETALS.map(([top, size, dur, delay], i) => (
+            <span
+              key={`petal-${i}`}
+              className="petal"
+              aria-hidden="true"
+              style={{ "--top": `${top}%`, "--size": `${size}px`, "--dur": `${dur}s`, "--delay": `${delay}s` } as CSSProperties}
+            />
+          ))}
           <span className="panelRays panelRaysSun" aria-hidden="true" />
         </>
       )}

@@ -46,8 +46,6 @@
   overflow: visible;
   perspective: clamp(920px, 84vw, 1500px);
   perspective-origin: 50% 46%;
-  --parx: 0px;
-  --pary: 0px;
   background: transparent;
 }
 
@@ -59,10 +57,8 @@
   isolation: isolate;
   transform-style: preserve-3d;
   transform-origin: 50% 98%;
-  transform: rotateX(11deg) rotateZ(0.12deg)
-    translate3d(var(--parx), var(--pary), 0);
-  /* Shortened from 1.4s — snappy parallax tracking, smooth snap-back */
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  /* The pile sits still; only individual leaves react to the pointer. */
+  transform: rotateX(11deg) rotateZ(0.12deg);
 }
 
 /* Tiny wind-scattered chips — not interactive */
@@ -167,8 +163,7 @@
   }
   .pilePlane {
     transform-origin: 50% 98%;
-    transform: rotateX(7deg) rotateZ(0.08deg)
-      translate3d(var(--parx), var(--pary), 0);
+    transform: rotateX(7deg) rotateZ(0.08deg);
   }
 }
 
@@ -176,7 +171,6 @@
   .pile { perspective: none; }
   .pilePlane {
     transform: rotateX(7deg);
-    transition: none;
   }
   .leafImg {
     filter: drop-shadow(0 2px 6px rgba(32, 20, 8, 0.08));
@@ -364,3 +358,16 @@
   to { opacity: 0; translate: 140px -24px; filter: blur(2px); }
 }
 @media (prefers-reduced-motion: reduce) { .gusting .pilePlane { animation: none; opacity: 0; } }
+
+/* The outermost leaves can reach a few px past the column on narrow phones.
+   Clip sideways only, so lifted leaves can still rise above the pile. */
+.section, .footerBand { overflow-x: clip; }
+
+/* Phones: a flat pile with no per-leaf shadows or forced layers. Mobile browsers flicker
+   when dozens of filtered leaves are composited inside a 3D plane. */
+@media (max-width: 639px) {
+  .pile { perspective: none; }
+  .pilePlane { transform: none; transform-style: flat; }
+  .leaf { will-change: auto; }
+  .leafImg { filter: none; }
+}

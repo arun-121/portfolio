@@ -14,10 +14,6 @@ export default function SiteNav() {
           className="navBrand"
           aria-current={pathname === "/" ? "page" : undefined}
         >
-          <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
-            <path d="M16 5c8 4 9 15 0 22C7 20 8 9 16 5Z" fill="#a4441b" />
-            <path d="M16 10v15" stroke="#f3eee1" strokeWidth="1.6" strokeLinecap="round" />
-          </svg>
           <span className="navName">Arun S R</span>
         </Link>
         <PlaceTime place="Chennai" className="navPlace" />

@@ -13,7 +13,7 @@ export default function ExperienceRole({
   title: string;
   dates: ReactNode;
   current: boolean;
-  built: string[];
+  built: string;
 }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
@@ -33,11 +33,7 @@ export default function ExperienceRole({
       </button>
       <div id={panelId} className="expBuiltWrap" inert={!open}>
         <div className="expBuiltInner">
-          <ul className="expBuilt" aria-label={`What I built as ${title}`}>
-            {built.map((b) => (
-              <li key={b}>{b}</li>
-            ))}
-          </ul>
+          <p className="expBuilt">{built}</p>
         </div>
       </div>
     </li>

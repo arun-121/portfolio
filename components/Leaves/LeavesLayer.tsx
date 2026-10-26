@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { haptic } from "@/lib/haptic";
 import { playCrack, warmAudio, type CrackVariant } from "@/lib/leafAudio";
 import styles from "./leafPile.module.css";
 
@@ -82,6 +83,20 @@ const SHARDS: Shard[] = [
 
 /** Leaf count — balance density vs scroll/hover repaint cost */
 const LEAF_COUNT = 42;
+
+/* Phones draw half the pile: dozens of filtered, transformed leaves make mobile browsers flicker. */
+const PHONE_QUERY = "(max-width: 639px)";
+function usePhone() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia(PHONE_QUERY);
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(PHONE_QUERY).matches,
+    () => false,
+  );
+}
 
 interface PileItem {
   x: number;
@@ -396,12 +411,31 @@ function PileLeaf({
     setFragments(rollFragments());
     setCrackKey((k) => k + 1);
     playCrack(item.pitch, item.crackVariant);
-    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-      navigator.vibrate?.(9);
-    }
     if (target) onCrack(target);
     window.setTimeout(() => setFragments(null), 1500);
   }, [cracked, item.pitch, item.crackVariant, onCrack]);
+
+  /* Touch cracks on a tap (finger lifts close to where it landed), so scrolling over the
+     pile never cracks leaves. Mouse cracks on press, as before. */
+  const tapStart = useRef<{ x: number; y: number } | null>(null);
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      if (e.pointerType === "mouse") return handleClick(e);
+      tapStart.current = { x: e.clientX, y: e.clientY };
+    },
+    [handleClick],
+  );
+  const onPointerUp = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      const start = tapStart.current;
+      tapStart.current = null;
+      if (!start || e.pointerType === "mouse" || cracked) return;
+      if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return;
+      haptic();
+      handleClick(e);
+    },
+    [handleClick, cracked],
+  );
 
   const enableLeafMotion = !reducedMotion && !cracked;
 
@@ -462,7 +496,11 @@ function PileLeaf({
         if (!cracked) setHovered(true);
       }}
       onHoverEnd={() => setHovered(false)}
-      onPointerDown={handleClick}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      onPointerCancel={() => {
+        tapStart.current = null;
+      }}
       onClick={(e) => {
         if (e.detail === 0) handleClick(e);
       }}
@@ -597,6 +635,7 @@ function PileLeaf({
 
 /** A calm, sparse handful for the hero: every third leaf of the full pile. */
 const SPARSE: PileItem[] = PILE.filter((_, i) => i % 3 === 0);
+const PHONE_PILE: PileItem[] = PILE.filter((_, i) => i % 2 === 0);
 /** A fuller scatter for the wide footer band: every second leaf. */
 const FOOTER_SET: PileItem[] = (() => {
   const base = PILE.filter((_, i) => i % 3 !== 0).slice(0, 16);
@@ -615,7 +654,8 @@ function PileScene({
   onCount: (n: number) => void;
   items?: PileItem[];
 }) {
-  const planeRef = useRef<HTMLDivElement>(null);
+  const phone = usePhone();
+  const shown = phone && items === PILE ? PHONE_PILE : items;
   const pileRef = useRef<HTMLDivElement>(null);
   const crackedRef = useRef(0);
   useEffect(() => {
@@ -663,45 +703,14 @@ function PileScene({
     },
     [onCount],
   );
-  const reducedMotion = useReducedMotion();
-  const rafRef = useRef<number>(0);
-
-  const handlePileMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (reducedMotion || !planeRef.current) return;
-      /* Capture coords before the RAF fires — the synthetic event may be recycled. */
-      const cx = e.clientX;
-      const cy = e.clientY;
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        if (!planeRef.current) return;
-        const r = planeRef.current.getBoundingClientRect();
-        const nx = (cx - r.left) / r.width - 0.5;
-        const ny = (cy - r.top) / r.height - 0.5;
-        planeRef.current.style.setProperty("--parx", `${(nx * 5).toFixed(2)}px`);
-        planeRef.current.style.setProperty("--pary", `${(ny * 3).toFixed(2)}px`);
-      });
-    },
-    [reducedMotion],
-  );
-
-  const handlePileLeave = useCallback(() => {
-    cancelAnimationFrame(rafRef.current);
-    if (!planeRef.current) return;
-    planeRef.current.style.setProperty("--parx", "0px");
-    planeRef.current.style.setProperty("--pary", "0px");
-  }, []);
-
   return (
     <div
       ref={pileRef}
       className={styles.pile}
       role="group"
       aria-label="Leaf pile"
-      onMouseMove={handlePileMove}
-      onMouseLeave={handlePileLeave}
     >
-      <div ref={planeRef} className={styles.pilePlane}>
+      <div className={styles.pilePlane}>
         {AMBIENT_CHIPS.map((chip, i) => (
           <img
             key={`chip-${i}`}
@@ -721,12 +730,12 @@ function PileScene({
             }}
           />
         ))}
-        {items.map((item, i) => (
+        {shown.map((item, i) => (
           <PileLeaf
             key={i}
             item={item}
             index={i}
-            totalLeaves={items.length}
+            totalLeaves={shown.length}
             onCrack={handleCrack}
           />
         ))}
@@ -742,13 +751,15 @@ export default function LeavesLayer({
   overlay?: boolean;
   footer?: boolean;
 }) {
+  const phone = usePhone();
+  const total = phone ? PHONE_PILE.length : LEAF_COUNT;
   const [count, setCount] = useState(0);
   /** Each full clear-out starts a new season: a gust, then a fresh pile. */
   const [season, setSeason] = useState(0);
   const [gust, setGust] = useState(false);
 
   useEffect(() => {
-    if (overlay || footer || count < LEAF_COUNT) return;
+    if (overlay || footer || count < total) return;
     const blow = window.setTimeout(() => setGust(true), 1100);
     const fresh = window.setTimeout(() => {
       setGust(false);
@@ -759,10 +770,10 @@ export default function LeavesLayer({
       window.clearTimeout(blow);
       window.clearTimeout(fresh);
     };
-  }, [count, overlay, footer]);
+  }, [count, total, overlay, footer]);
 
   /** No tally: the line only changes when the pile is cleared and refilled. */
-  const cleared = count >= LEAF_COUNT;
+  const cleared = count >= total;
   const pileStatus = cleared
     ? "All swept. Thank you."
     : season > 0
@@ -817,7 +828,7 @@ export default function LeavesLayer({
         </span>
       </p>
       <p id="leaf-pile-hint" className="sr-only">
-        {LEAF_COUNT} dry leaves are scattered below. Activate any leaf to
+        {total} dry leaves are scattered below. Activate any leaf to
         crack it. Cracked leaves are removed from keyboard navigation.
       </p>
 

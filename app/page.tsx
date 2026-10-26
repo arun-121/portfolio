@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import Experience from "@/components/Experience";
+import IntroLinks from "@/components/IntroLinks";
 import Panel from "@/components/Panel";
 import Reveal from "@/components/Reveal";
 import SiteFooter from "@/components/SiteFooter";
@@ -50,19 +50,8 @@ export default function Home() {
             I work on a customer support product: the billing module, third&#8209;party
             integrations, and the reusable pieces other features are built from.
           </Reveal>
-          <Reveal kind="up" delay={120} className="introActions">
-            <a className="btnSolid" href={SITE.links.github} target="_blank" rel="noopener noreferrer">
-              GitHub
-              <ArrowUpRight size={16} weight="bold" aria-hidden />
-            </a>
-            <a className="btnOutline" href="/Arun-S-R-Resume.pdf" target="_blank" rel="noopener noreferrer">
-              Résumé
-              <ArrowUpRight size={16} weight="bold" aria-hidden />
-            </a>
-          </Reveal>
-          <Reveal kind="up" delay={160} as="p" className="quietLinks">
-            <a href={`mailto:${SITE.email}`}>Email</a>
-            <a href={SITE.links.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <Reveal kind="up" delay={120} as="p" className="quietLinks introLinks">
+            <IntroLinks />
           </Reveal>
         </section>
 
@@ -70,11 +59,6 @@ export default function Home() {
         </div>
       </main>
 
-      <div className="drift" aria-hidden="true">
-        {[0, 1, 2, 3, 4, 5].map((n) => (
-          <img key={n} className={`driftLeaf driftLeaf${n}`} src={`/leaves/leaf-${[1, 2, 3, 5, 2, 3][n]}.${[1, 2, 3, 5, 2, 3][n] === 5 ? "png" : "webp"}`} alt="" />
-        ))}
-      </div>
 
       <SiteFooter leaves />
     </>
