@@ -7,6 +7,9 @@ import Reveal from "@/components/Reveal";
 import SiteFooter from "@/components/SiteFooter";
 import { getSiteUrl, SITE } from "@/lib/site";
 
+/** Re-render at most once a minute so the Spotify item in the header stays fresh. */
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: { absolute: `${SITE.name} | ${SITE.role}` },
   alternates: { canonical: "/" },

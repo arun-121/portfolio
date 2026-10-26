@@ -1028,3 +1028,44 @@ body::before {
 }
 @media (max-width: 639px) { .petal:nth-child(n + 8) { display: none; } }
 @media (prefers-reduced-motion: reduce) { .petal { display: none; } }
+
+/* the song on Spotify, top right: same quiet style as the place and the clock; the logo turns rust while playing */
+.navSong { position: relative; margin-left: auto; padding-left: 16px; display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-size: 14px; line-height: 20px; color: var(--muted); text-decoration: none; transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); }
+.navSong:active { transform: scale(0.97); }
+.navSong:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.navSong + .navPlace { margin-left: 0; }
+.navSong svg { flex: none; }
+[data-playing].navSong svg { color: var(--accent); }
+.navSongText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 18ch; transition: color 180ms ease; }
+/* the header sits above the painting so the hover card can open over it */
+.nav { z-index: 30; }
+/* hover card: waits 300ms before opening so a passing cursor doesn't trigger it, closes at once */
+.navSongCard {
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 20; display: none; align-items: center; gap: 12px;
+  width: max-content; max-width: 280px; padding: 10px 14px 10px 10px; border-radius: 10px;
+  background: var(--cream); box-shadow: 0 0 0 1px var(--rule), 0 8px 24px -8px rgba(36, 48, 31, 0.25);
+  opacity: 0; transform: scale(0.97) translateY(-2px); transform-origin: top right; pointer-events: none;
+  transition: opacity 120ms ease-out, transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.navSongCard img { flex: none; width: 48px; height: 48px; border-radius: 4px; object-fit: cover; box-shadow: 0 0 0 1px rgba(36, 48, 31, 0.1); }
+.navSongCardText { display: grid; min-width: 0; }
+.navSongCardSource { font-size: 12px; line-height: 16px; color: var(--faint); }
+[data-playing] .navSongCardSource { color: var(--accent); }
+.navSongCardTitle { margin-top: 2px; font-family: var(--serif); font-size: 15px; line-height: 20px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.navSongCardArtist { font-size: 13px; line-height: 18px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (hover: hover) and (pointer: fine) {
+  .navSongCard { display: flex; }
+  .navSong:hover .navSongText { color: var(--ink); }
+  .navSong:hover .navSongCard, .navSong:focus-visible .navSongCard {
+    opacity: 1; transform: none;
+    transition: opacity 180ms ease-out 300ms, transform 220ms cubic-bezier(0.23, 1, 0.32, 1) 300ms;
+  }
+}
+@media (prefers-reduced-motion: reduce) { .navSong, .navSongCard { transform: none !important; } }
+/* phones: the header row is full, so the song takes its own line under the name */
+@media (max-width: 639px) {
+  .nav .navInner { flex-wrap: wrap; row-gap: 2px; }
+  .navSong { order: 3; flex-basis: 100%; margin-left: 0; padding-left: 0; font-size: 13px; }
+  .navSong + .navPlace { margin-left: auto; }
+  .navSongText { max-width: none; }
+}

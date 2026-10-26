@@ -371,3 +371,7 @@
   .leaf { will-change: auto; }
   .leafImg { filter: none; }
 }
+
+/* leaves cracked by every visitor: one quiet line under the pile */
+.section .everyone { position: relative; z-index: 1; margin: 8px 0 0; font-size: 14px; line-height: 20px; color: var(--faint); }
+.section .everyoneNum { color: var(--muted); }
