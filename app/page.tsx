@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Experience from "@/components/Experience";
+import Greeting from "@/components/Greeting";
 import IntroLinks from "@/components/IntroLinks";
 import Panel from "@/components/Panel";
 import Reveal from "@/components/Reveal";
@@ -45,7 +46,7 @@ export default function Home() {
           <Reveal kind="up" delay={0} className="profileRow">
             <img className="avatar foxAvatar" src="/avatar.jpg" alt="" width={64} height={64} />
             <span className="profileText">
-              <h1 id="hero-title" className="profileName">Hi, I&rsquo;m Arun.</h1>
+              <h1 id="hero-title" className="profileName"><Greeting /></h1>
               <span className="profileTitle">{SITE.role}</span>
             </span>
           </Reveal>
