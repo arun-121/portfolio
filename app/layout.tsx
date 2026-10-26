@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Schibsted_Grotesk, Young_Serif } from "next/font/google";
 import CommandPalette from "@/components/CommandPalette";
+import LastPlayed from "@/components/LastPlayed";
 import SiteNav from "@/components/SiteNav";
+import { getWeather } from "@/lib/weather";
 import { getSiteUrl, SITE } from "@/lib/site";
 import "./scenery.css";
 import "./globals.css";
@@ -56,18 +58,19 @@ export const viewport: Viewport = {
   colorScheme: "light",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const weather = await getWeather();
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable} ${mono.variable}`}>
       <body>
         <a href="#main" className="skipLink">
           Skip to content
         </a>
-        <SiteNav />
+        <SiteNav song={<LastPlayed />} weather={weather} />
         <CommandPalette />
         {children}
       </body>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useLeafTotal } from "@/lib/useLeafTotal";
 import { motion, useReducedMotion } from "framer-motion";
 import { haptic } from "@/lib/haptic";
 import { playCrack, warmAudio, type CrackVariant } from "@/lib/leafAudio";
@@ -757,6 +758,15 @@ export default function LeavesLayer({
   /** Each full clear-out starts a new season: a gust, then a fresh pile. */
   const [season, setSeason] = useState(0);
   const [gust, setGust] = useState(false);
+  const { total: everyone, add } = useLeafTotal();
+  /** Each crack counts toward the total everyone has cracked. */
+  const onCrack = useCallback(
+    (n: number) => {
+      setCount(n);
+      add();
+    },
+    [add],
+  );
 
   useEffect(() => {
     if (overlay || footer || count < total) return;
@@ -833,8 +843,15 @@ export default function LeavesLayer({
       </p>
 
       <div className={gust ? styles.gusting : undefined}>
-        <PileScene key={season} onCount={setCount} />
+        <PileScene key={season} onCount={onCrack} />
       </div>
+
+      {everyone !== null && (
+        <p className={styles.everyone}>
+          <span className={styles.everyoneNum}>{everyone.toLocaleString("en-US")}</span>{" "}
+          {everyone === 1 ? "leaf" : "leaves"} cracked by visitors so far.
+        </p>
+      )}
     </section>
   );
 }
