@@ -48,7 +48,7 @@ a { color: inherit; text-decoration: none; }
 .skipLink {
   position: fixed; top: 12px; left: 12px; z-index: 100;
   padding: 8px 14px; background: var(--ink); color: var(--paper);
-  font-size: 14px; transform: translateY(-200%); transition: transform 400ms var(--ease);
+  font-size: 14px; transform: translateY(-200%);
 }
 .skipLink:focus { transform: none; }
 
@@ -669,7 +669,7 @@ a { color: inherit; text-decoration: none; }
 .navPlace { margin-left: auto; display: inline-flex; align-items: center; gap: 14px; font-size: 14px; line-height: 20px; color: var(--muted); }
 .placeTimeItem { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .placeTimeItem svg { flex: none; }
-.placeTimeItem time { display: inline-block; min-width: 8ch; font-variant-numeric: tabular-nums; }
+.placeTimeItem time { display: inline-block; min-width: 8ch; }
 .navPlace { padding-left: 16px; }
 @media (max-width: 479px) { .navPlace { gap: 10px; font-size: 13px; } .navPlace svg { display: none; } .kbd { display: none; } }
 
@@ -718,25 +718,7 @@ a { color: inherit; text-decoration: none; }
 @media (hover: hover) and (pointer: fine) { .forkPath a:hover { color: var(--accent); background-size: 100% 1px; } .forkPath a:hover svg { transform: translate(2px, -2px); color: currentColor; } }
 .forkPath a:active { opacity: 0.8; }
 
-/* a few leaves drifting down the empty sides, slow and faint */
-.drift { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; display: none; }
-@media (min-width: 1100px) { .drift { display: block; } }
-.driftLeaf { position: absolute; top: -80px; width: 44px; opacity: 0; will-change: transform, opacity; animation: driftFall var(--t, 38s) linear var(--d, 0s) infinite; }
-.driftLeaf0 { left: 8%;  --t: 42s; --d: -6s;  width: 40px; }
-.driftLeaf1 { left: 17%; --t: 55s; --d: -28s; width: 30px; }
-.driftLeaf2 { left: 4%;  --t: 48s; --d: -40s; width: 34px; }
-.driftLeaf3 { left: 84%; --t: 46s; --d: -14s; width: 42px; }
-.driftLeaf4 { left: 92%; --t: 58s; --d: -36s; width: 30px; }
-.driftLeaf5 { left: 76%; --t: 50s; --d: -2s;  width: 34px; }
-@keyframes driftFall {
-  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
-  8% { opacity: 0.4; }
-  50% { transform: translate3d(36px, 55vh, 0) rotate(160deg); }
-  92% { opacity: 0.4; }
-  100% { transform: translate3d(-12px, 112vh, 0) rotate(330deg); opacity: 0; }
-}
 .column, .nav, .footer { position: relative; z-index: 1; }
-@media (prefers-reduced-motion: reduce) { .driftLeaf { animation: none; opacity: 0.25; top: 40%; } }
 @media (max-width: 639px) { .column { padding: 0 8px; } .intro { padding: 24px 12px 16px; } }
 
 /* ═════════ intro as one card, overlapping the painting; no footer bar ═════════ */
@@ -929,7 +911,7 @@ html, body { background: var(--paper); }
   opacity: 0; transform: translateY(-4px); filter: blur(2px);
   transition: opacity 150ms ease, transform 200ms cubic-bezier(0.23, 1, 0.32, 1), filter 150ms ease; }
 .expRoleRow[data-open] .expBuilt { opacity: 1; transform: none; filter: none; transition-duration: 220ms, 280ms, 220ms; transition-delay: 40ms; }
-.expBuilt li { font-size: 15px; line-height: 24px; color: var(--muted); text-wrap: pretty; }
+.expBuilt li { font-size: 15px; line-height: 24px; color: var(--ink); text-wrap: pretty; }
 
 /* the stem: a hairline from the logo to the first node, then node to node */
 .expRoles::before,
@@ -977,3 +959,72 @@ html, body { background: var(--paper); }
   outline: 1px solid rgba(36, 48, 31, 0.12); outline-offset: -1px;
   filter: sepia(0.22) saturate(0.88) brightness(1.02);
 }
+
+/* small screens: no sideways scroll (clip, unlike hidden, also holds on iOS Safari), and 44px touch targets */
+html, body { overflow-x: clip; }
+@media (pointer: coarse) {
+  .expRoleToggle { margin: -10px -8px; padding: 10px 8px; }
+  .quietLinks { margin-top: 12px; }
+  .quietLinks a { padding: 10px 0; }
+  .navBrand { padding: 8px 0; }
+}
+/* a wrapped role title keeps its + beside the last word, not pushed to the far edge */
+.expRoleToggle { display: block; line-height: 24px; }
+.expRoleName { display: inline; }
+.expRoleMark { display: inline-block; vertical-align: -1px; margin-left: 10px; }
+/* the banner's sun, mist and light layers run wide by design; clip them at the panel itself */
+.panel { overflow: clip; }
+
+/* intro links: icon and label, one quiet row, all equal; email copies itself */
+.introLinks { flex-wrap: wrap; column-gap: 24px; row-gap: 4px; margin-top: 24px; font-size: 16px; }
+.introLinks a { display: inline-flex; align-items: center; gap: 6px; }
+.introLinks a svg { flex: none; color: var(--muted); transition: color 180ms ease, transform 220ms cubic-bezier(0.23, 1, 0.32, 1); }
+@media (hover: hover) and (pointer: fine) {
+  .introLinks a:hover svg { color: var(--accent); transform: translateY(-1px); }
+}
+/* Email ⇄ Copied: both labels share one cell; a short blur crossfade swaps them */
+.linkSwap { display: inline-grid; }
+.linkSwapA, .linkSwapB { grid-area: 1 / 1; display: inline-flex; align-items: center; gap: 6px; transition: opacity 180ms ease, filter 180ms ease, transform 220ms cubic-bezier(0.23, 1, 0.32, 1); }
+.linkSwapB { opacity: 0; filter: blur(2px); transform: translateY(3px); color: var(--accent); }
+.linkSwapB svg { color: var(--accent) !important; }
+[data-copied] .linkSwapA { opacity: 0; filter: blur(2px); transform: translateY(-3px); }
+[data-copied] .linkSwapB { opacity: 1; filter: none; transform: none; }
+@media (max-width: 479px) { .introLinks { display: grid; grid-template-columns: repeat(2, max-content); column-gap: 32px; } }
+@media (prefers-reduced-motion: reduce) { .linkSwapA, .linkSwapB { transform: none !important; filter: none !important; } }
+
+/* paper grain: fine warm specks behind everything, so the parchment reads as paper. static, never moves */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: var(--img-paper); background-size: 180px 180px; opacity: 0.22;
+}
+
+/* what the role was: one plain sentence, in the page's reading voice */
+.expBuilt { display: block; font-size: 15px; line-height: 24px; color: var(--muted); text-wrap: pretty; }
+.expParent { font-family: var(--sans); font-size: 15px; letter-spacing: 0; color: var(--muted); }
+
+/* company names link to their sites: quiet until hovered */
+.expCo a, .expParent a { color: inherit; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: color 180ms ease, background-size 260ms cubic-bezier(0.23, 1, 0.32, 1); }
+.expCo a:active { opacity: 0.7; }
+@media (hover: hover) and (pointer: fine) { .expCo a:hover, .expParent a:hover { color: var(--accent); background-size: 100% 1px; } }
+
+/* a breeze through the painting: tiny pale petals drift left to right, rising and dipping,
+   flickering as they turn. Constant wind, so linear timing. Widths come from the banner (cqw). */
+.panel.banner { container-type: inline-size; }
+.petal {
+  position: absolute; z-index: -1; left: 0; top: var(--top); pointer-events: none;
+  width: calc(var(--size) * 1.5); height: calc(var(--size) * 0.8); border-radius: 60% 40% 60% 40%;
+  background: radial-gradient(ellipse at 40% 40%, rgb(255, 238, 236) 0%, rgb(240, 196, 196) 70%, rgb(214, 160, 158) 100%);
+  box-shadow: 0 1px 2px rgba(120, 70, 60, 0.25); filter: blur(0.2px);
+  animation: petalDrift var(--dur) linear var(--delay) infinite;
+}
+@keyframes petalDrift {
+  0% { transform: translate(-4cqw, 0) rotate(0deg) scaleX(1); opacity: 0; }
+  6% { opacity: 0.9; }
+  25% { transform: translate(24cqw, 10px) rotate(100deg) scaleX(0.35); }
+  50% { transform: translate(52cqw, -6px) rotate(190deg) scaleX(1); }
+  75% { transform: translate(80cqw, 12px) rotate(280deg) scaleX(0.4); }
+  94% { opacity: 0.9; }
+  100% { transform: translate(106cqw, 4px) rotate(360deg) scaleX(1); opacity: 0; }
+}
+@media (max-width: 639px) { .petal:nth-child(n + 8) { display: none; } }
+@media (prefers-reduced-motion: reduce) { .petal { display: none; } }
