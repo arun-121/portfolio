@@ -1000,58 +1000,12 @@ body::before {
 
 /* what the role was: one plain sentence, in the page's reading voice */
 .expBuilt { display: block; font-size: 15px; line-height: 24px; color: var(--muted); text-wrap: pretty; }
-
-/* ═════════ résumé page: the PDF's content, typeset like the rest of the site ═════════ */
-.resume { padding: 24px 24px 80px; }
-@media (max-width: 639px) { .resume { padding: 16px 12px 56px; } }
-.resumeBack { display: inline-flex; align-items: center; gap: 6px; padding: 8px 0; font-size: 14px; line-height: 20px; color: var(--muted); }
-.resumeBack svg { transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1); }
-@media (hover: hover) and (pointer: fine) { .resumeBack:hover { color: var(--ink); } .resumeBack:hover svg { transform: translateX(-2px); } }
-.resumeHead { margin: 16px 0 48px; }
-.resumeName { margin: 0; font-family: var(--serif); font-size: 36px; line-height: 40px; letter-spacing: -0.015em; color: var(--ink); }
-.resumeRole { margin: 8px 0 0; font-size: 16px; line-height: 24px; color: var(--muted); }
-.resumeContact { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 12px 0 0; font-size: 15px; line-height: 24px; }
-.resumeContact a { color: var(--ink); background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: color 180ms ease, background-size 260ms cubic-bezier(0.23, 1, 0.32, 1); }
-@media (hover: hover) and (pointer: fine) { .resumeContact a:hover { color: var(--accent); background-size: 100% 1px; } }
-.resumeActions { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0 0; }
-.resumeBtn {
-  display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px;
-  border: 1px solid var(--rule); background: var(--cream); color: var(--ink); font-size: 15px; line-height: 20px; font-weight: 500;
-  transition: background-color 180ms ease, border-color 180ms ease, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-.resumeBtn:active { transform: scale(0.97); }
-.resumeBtnMain { background: var(--ink); border-color: var(--ink); color: var(--cream); }
-@media (hover: hover) and (pointer: fine) { .resumeBtn:hover { border-color: var(--ink); } .resumeBtnMain:hover { background: #36442c; } }
-
-.resumeSection { margin-top: 40px; }
-.resumeH2 { margin: 0 0 16px; font-family: var(--serif); font-size: 22px; line-height: 28px; letter-spacing: -0.01em; color: var(--ink); }
-.resumeText { margin: 0; max-width: 40em; font-size: 16px; line-height: 26px; color: var(--muted); }
-.resumeItem + .resumeItem { margin-top: 28px; }
-.resumeItemHead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 16px; }
-.resumeItemTitle { margin: 0; font-size: 16px; line-height: 24px; font-weight: 500; color: var(--ink); }
-.resumeWhen { font-size: 14px; line-height: 20px; color: var(--muted); white-space: nowrap; }
-.resumeItemSub { margin: 2px 0 0; font-size: 14px; line-height: 20px; color: var(--muted); }
-.resumePoints { display: grid; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; max-width: 42em; }
-.resumePoints li { position: relative; padding-left: 16px; font-size: 15px; line-height: 24px; color: var(--ink); text-wrap: pretty; }
-.resumePoints li::before { content: ""; position: absolute; left: 0; top: 10px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
-.resumeSkills { display: grid; gap: 10px; margin: 0; }
-.resumeSkills div { display: grid; grid-template-columns: 168px 1fr; column-gap: 16px; }
-.resumeSkills dt { font-size: 14px; line-height: 24px; color: var(--muted); }
-.resumeSkills dd { margin: 0; font-size: 15px; line-height: 24px; color: var(--ink); }
-@media (max-width: 479px) { .resumeSkills div { grid-template-columns: 1fr; } }
-
-@media print {
-  .nav, .resumeBack, .resumeActions { display: none !important; }
-  body::before { display: none; }
-  .resume { padding: 0; }
-  .resumeSection { break-inside: avoid-page; }
-}
 .expParent { font-family: var(--sans); font-size: 15px; letter-spacing: 0; color: var(--muted); }
 
 /* company names link to their sites: quiet until hovered */
-.expCo a, .expParent a, .resumeItemSub a { color: inherit; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: color 180ms ease, background-size 260ms cubic-bezier(0.23, 1, 0.32, 1); }
-.expCo a:active, .resumeItemSub a:active { opacity: 0.7; }
-@media (hover: hover) and (pointer: fine) { .expCo a:hover, .expParent a:hover, .resumeItemSub a:hover { color: var(--accent); background-size: 100% 1px; } }
+.expCo a, .expParent a { color: inherit; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: color 180ms ease, background-size 260ms cubic-bezier(0.23, 1, 0.32, 1); }
+.expCo a:active { opacity: 0.7; }
+@media (hover: hover) and (pointer: fine) { .expCo a:hover, .expParent a:hover { color: var(--accent); background-size: 100% 1px; } }
 
 /* a breeze through the painting: tiny pale petals drift left to right, rising and dipping,
    flickering as they turn. Constant wind, so linear timing. Widths come from the banner (cqw). */

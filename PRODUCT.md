@@ -16,7 +16,7 @@ A small personal portfolio for Arun S R, a developer in Chennai, India. It intro
 A developer portfolio with a personal point of view: a watercolour scene and a pile of dry leaves that can be cracked. Work and skills are stated plainly; it is not a case study index.
 
 ## Operating Context
-Static Next.js site (App Router, React, TypeScript). Pages: home, /resume and a 404. The writing section was removed on request. The résumé is a .pdf in /public, also typeset as the /resume page from lib/resume.ts (keep the two in step). Contact is a mailto link and a Cmd/Ctrl+K command palette.
+Static Next.js site (App Router, React, TypeScript). Pages: home and a 404. The writing section was removed on request. The résumé is a .pdf in /public, opened in the browser's PDF viewer (a separate résumé page was tried and removed on request). Contact is a mailto link and a Cmd/Ctrl+K command palette.
 
 ## Capabilities and Constraints
 - Primary action: open the résumé. GitHub is secondary (most work is in private repos); Email and LinkedIn are quieter still.

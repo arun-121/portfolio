@@ -25,7 +25,7 @@ export default function IntroLinks() {
 
   return (
     <>
-      <a href="/resume">
+      <a href="/Arun-S-R-Resume.pdf" target="_blank" rel="noopener noreferrer">
         <FileText size={16} aria-hidden />
         Résumé
       </a>
