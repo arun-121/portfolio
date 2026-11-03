@@ -10,6 +10,7 @@ export const SITE = {
   links: {
     github: "https://github.com/arun-121",
     linkedin: "https://www.linkedin.com/in/arun-ramesh900/",
+    instagram: "https://www.instagram.com/_arun_72/",
   },
 } as const;
 

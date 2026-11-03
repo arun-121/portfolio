@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { Check, EnvelopeSimple, FileText, GithubLogo, LinkedinLogo } from "@phosphor-icons/react";
+import { Check, EnvelopeSimple, FileText, GithubLogo, InstagramLogo, LinkedinLogo } from "@phosphor-icons/react";
 import { SITE } from "@/lib/site";
 
-/** Résumé, GitHub, LinkedIn, Email. Email copies the address on a plain click; modified clicks still open mail. */
+/** Résumé, GitHub, LinkedIn, Instagram, Email. Email copies the address on a plain click; modified clicks still open mail. */
 export default function IntroLinks() {
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -36,6 +36,10 @@ export default function IntroLinks() {
       <a href={SITE.links.linkedin} target="_blank" rel="noopener noreferrer">
         <LinkedinLogo size={16} aria-hidden />
         LinkedIn
+      </a>
+      <a href={SITE.links.instagram} target="_blank" rel="noopener noreferrer">
+        <InstagramLogo size={16} aria-hidden />
+        Instagram
       </a>
       <a href={`mailto:${SITE.email}`} onClick={copyEmail} data-copied={copied || undefined} title={SITE.email}>
         <span className="linkSwap">
