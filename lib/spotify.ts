@@ -17,7 +17,8 @@ type SpotifyTrack = {
 
 const coverOf = (t: SpotifyTrack) => {
   const images = t.album?.images ?? [];
-  return ([...images].reverse().find((i) => (i.width ?? 0) >= 64) ?? images[0])?.url ?? null;
+  // Shown at 48px; 3x that keeps it sharp on retina screens (Spotify's 300px cover).
+  return ([...images].reverse().find((i) => (i.width ?? 0) >= 144) ?? images[0])?.url ?? null;
 };
 
 const toTrack = (t: SpotifyTrack, playing: boolean): Track => ({

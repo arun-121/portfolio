@@ -24,7 +24,7 @@ export default function Home() {
     email: `mailto:${SITE.email}`,
     jobTitle: SITE.role,
     address: { "@type": "PostalAddress", addressLocality: "Chennai", addressCountry: "IN" },
-    sameAs: [SITE.links.github, SITE.links.linkedin],
+    sameAs: [SITE.links.github, SITE.links.linkedin, SITE.links.instagram],
   };
 
   return (
