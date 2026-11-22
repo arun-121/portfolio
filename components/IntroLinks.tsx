@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { Check, EnvelopeSimple, FileText, GithubLogo, InstagramLogo, LinkedinLogo } from "@phosphor-icons/react";
+import { Check, EnvelopeSimple, /* FileText, */ GithubLogo, InstagramLogo, LinkedinLogo } from "@phosphor-icons/react";
 import { SITE } from "@/lib/site";
 
 /** Résumé, GitHub, LinkedIn, Instagram, Email. Email copies the address on a plain click; modified clicks still open mail. */
@@ -25,10 +25,12 @@ export default function IntroLinks() {
 
   return (
     <>
+      {/* Résumé hidden for now. Uncomment to show it again.
       <a href="/Arun-S-R-Resume.pdf" target="_blank" rel="noopener noreferrer">
         <FileText size={16} aria-hidden />
         Résumé
       </a>
+      */}
       <a href={SITE.links.github} target="_blank" rel="noopener noreferrer">
         <GithubLogo size={16} aria-hidden />
         GitHub
