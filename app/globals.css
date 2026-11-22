@@ -1113,3 +1113,8 @@ body::before {
 .projMade { font-size: 13px; line-height: 24px; color: var(--muted); white-space: nowrap; }
 .projAbout { grid-column: 1 / -1; margin: 2px 0 0; max-width: 36em; font-size: 15px; line-height: 24px; color: var(--muted); text-wrap: pretty; }
 @media (pointer: coarse) { .projName { padding: 10px 0; margin: -10px 0; } }
+
+/* press feedback on the name, the same as the song and the shortcut chip beside it */
+.navBrand { transform-origin: left center; transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); }
+.navBrand:active { transform: scale(0.97); }
+@media (prefers-reduced-motion: reduce) { .navBrand { transform: none !important; } }
