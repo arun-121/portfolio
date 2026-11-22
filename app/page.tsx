@@ -3,8 +3,10 @@ import Link from "next/link";
 import Experience from "@/components/Experience";
 import IntroLinks from "@/components/IntroLinks";
 import Panel from "@/components/Panel";
+import Projects from "@/components/Projects";
 import Reveal from "@/components/Reveal";
 import SiteFooter from "@/components/SiteFooter";
+import Uses from "@/components/Uses";
 import { getSiteUrl, SITE } from "@/lib/site";
 
 /** Re-render at most once a minute so the Spotify item in the header stays fresh. */
@@ -59,6 +61,8 @@ export default function Home() {
         </section>
 
         <Experience />
+        <Projects />
+        <Uses />
         </div>
       </main>
 
