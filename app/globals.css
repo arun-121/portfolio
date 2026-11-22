@@ -1072,3 +1072,42 @@ body::before {
   /* no reserved width for the time here, so its last digit lines up with the song's end */
   .navInner:has(.navSong) .placeTimeItem time { min-width: 0; }
 }
+
+/* uses: a spec sheet on one grid. the label column is as wide as the longest label (subgrid), so every value starts on one line;
+   hairlines between rows echo the stem in Experience */
+.unit .uses { padding: 0 24px 56px; }
+@media (max-width: 639px) { .unit .uses { padding: 0 12px 40px; } }
+.usesList { --label: 96px; --gap: 24px; margin: 0; display: grid; grid-template-columns: var(--label) 1fr; column-gap: var(--gap); }
+.usesRow { grid-column: 1 / -1; display: grid; grid-template-columns: var(--label) 1fr; column-gap: var(--gap); align-items: baseline; padding: 8px 0; }
+.usesRow + .usesRow { border-top: 1px solid color-mix(in srgb, var(--rule) 65%, transparent); }
+.usesRow:first-child { padding-top: 0; }
+.usesRow:last-child { padding-bottom: 0; }
+.usesRow dt { font-size: 13px; line-height: 24px; color: var(--muted); }
+.usesRow dd { margin: 0; font-size: 16px; line-height: 24px; color: var(--ink); text-wrap: pretty; }
+@media (max-width: 479px) { .usesList { --label: 80px; --gap: 16px; } }
+@supports (grid-template-columns: subgrid) {
+  .usesList { grid-template-columns: max-content 1fr; }
+  .usesRow { grid-template-columns: subgrid; column-gap: normal; }
+}
+/* each row settles in: a short rise and fade, fast and ending soft; the stagger is 35ms a row */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .usesRow.reveal { transform: translateY(6px); transition-duration: 320ms, 320ms, 0ms; transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
+  .usesRow.reveal[data-in="true"] { transform: none; }
+}
+
+/* projects: name and language on one line, one plain sentence under it. same rhythm as the roles above */
+.unit .projects { padding: 0 24px 56px; }
+@media (max-width: 639px) { .unit .projects { padding: 0 12px 40px; } }
+.projList { margin: 0; padding: 0; list-style: none; display: grid; gap: 24px; }
+.projRow { display: grid; grid-template-columns: 1fr auto; column-gap: 16px; align-items: baseline; }
+.projName {
+  justify-self: start; font-size: 16px; line-height: 24px; font-weight: 500; color: var(--ink); text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: color 180ms ease, background-size 260ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.projName:active { opacity: 0.7; }
+.projName:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+@media (hover: hover) and (pointer: fine) { .projName:hover { color: var(--accent); background-size: 100% 1px; } }
+.projMade { font-size: 13px; line-height: 24px; color: var(--muted); white-space: nowrap; }
+.projAbout { grid-column: 1 / -1; margin: 2px 0 0; max-width: 36em; font-size: 15px; line-height: 24px; color: var(--muted); text-wrap: pretty; }
+@media (pointer: coarse) { .projName { padding: 10px 0; margin: -10px 0; } }
