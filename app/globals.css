@@ -1256,7 +1256,9 @@ body::before {
   .storyBack, .expStory, .storyBack svg, .expStory svg { transition: color 180ms ease; transform: none !important; }
 }
 
-/* the tagline under the greeting: one line in the serif, the plain description stays muted under it */
-.introCard .heroTagline { margin: 0 0 10px; max-width: 26em; font-family: var(--serif); font-size: 20px; line-height: 28px; letter-spacing: -0.005em; color: var(--ink); text-wrap: balance; }
-@media (max-width: 639px) { .introCard .heroTagline { font-size: 19px; line-height: 27px; } }
+/* company names in the intro sentence: ink and a hairline underline so they read as links without relying on colour; rust on hover */
+.heroLink { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule); text-decoration-thickness: 1px; text-underline-offset: 3px;
+  transition: color 180ms ease, text-decoration-color 180ms ease; }
+.heroLink:active { opacity: 0.7; }
+@media (hover: hover) and (pointer: fine) { .heroLink:hover { color: var(--accent); text-decoration-color: currentColor; } }
 

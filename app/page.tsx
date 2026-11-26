@@ -51,13 +51,18 @@ export default function Home() {
               <span className="profileTitle">{SITE.role}</span>
             </span>
           </Reveal>
-          <Reveal kind="up" delay={60} as="p" className="heroTagline">
-            Frontend, backend and AI.
+          <Reveal kind="up" delay={60} as="p" className="heroSub">
+            Currently at{" "}
+            <a className="heroLink" href="https://sparrowdesk.com" target="_blank" rel="noopener noreferrer">
+              SparrowDesk
+            </a>
+            , the customer support platform from{" "}
+            <a className="heroLink" href="https://surveysparrow.com" target="_blank" rel="noopener noreferrer">
+              SurveySparrow
+            </a>
+            , as a Member of Technical Staff.
           </Reveal>
-          <Reveal kind="up" delay={120} as="p" className="heroSub">
-            I work on a customer support product: billing, integrations and AI features.
-          </Reveal>
-          <Reveal kind="up" delay={180} as="p" className="quietLinks introLinks">
+          <Reveal kind="up" delay={120} as="p" className="quietLinks introLinks">
             <IntroLinks />
           </Reveal>
         </section>

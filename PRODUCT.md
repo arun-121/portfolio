@@ -21,12 +21,12 @@ Static Next.js site (App Router, React, TypeScript). Pages: home, /my-sparrowdes
 ## Capabilities and Constraints
 - Primary action: open the résumé. GitHub is secondary (most work is in private repos); Email and LinkedIn are quieter still.
 - Keep it minimal and few words. Essentials only.
-- SparrowDesk may appear only where it is factual (the experience section and its own page, /my-sparrowdesk-years). It was removed from the hero and metadata on request; do not put it back there.
+- SparrowDesk appears where it is factual: one short sentence in the hero, framed with "Currently" (role and company, SparrowDesk and SurveySparrow linked) so the job reads as a chapter, not his whole identity; the experience section; and its own page, /my-sparrowdesk-years. Keep it out of the metadata.
 - No privacy, terms or footer bar (removed on request).
 - The fox painting (public/backgrounds/hero.jpg) and the leaf cracking interaction are signature pieces.
 
 ## Brand Commitments
-Name: Arun S R. Voice: plain, first person, specific, quiet. The greeting is "Hi, I'm Arun." The tagline under it: "Frontend, backend and AI."
+Name: Arun S R. Voice: plain, first person, specific, quiet. The greeting is "Hi, I'm Arun."
 
 ## Evidence on Hand
 Résumé (public/Arun-S-R-Resume.pdf), GitHub (github.com/arun-121), LinkedIn. No clients or awards exist, so none may be invented. /my-sparrowdesk-years uses only measured numbers from Arun's own records (GitHub, Jira, git, Confluence, his write-ups, his Claude Code history); no testimonials, and no revenue, customer or pricing figures.
