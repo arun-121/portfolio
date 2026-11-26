@@ -52,11 +52,10 @@ export default function Home() {
             </span>
           </Reveal>
           <Reveal kind="up" delay={60} as="p" className="heroTagline">
-            Whatever the feature needs, from the UI and APIs to databases, queues and LLMs.
+            Frontend, backend and AI.
           </Reveal>
           <Reveal kind="up" delay={120} as="p" className="heroSub">
-            I work on a customer support product: the billing module, third&#8209;party
-            integrations, AI features, and the reusable pieces other features are built from.
+            I work on a customer support product: billing, integrations and AI features.
           </Reveal>
           <Reveal kind="up" delay={180} as="p" className="quietLinks introLinks">
             <IntroLinks />
