@@ -52,7 +52,7 @@ export default function Home() {
             </span>
           </Reveal>
           <Reveal kind="up" delay={60} as="p" className="heroTagline">
-            TypeScript across the stack: React, Node.js, PostgreSQL, Stripe and LLMs.
+            Whatever the feature needs, from the UI and APIs to databases, queues and LLMs.
           </Reveal>
           <Reveal kind="up" delay={120} as="p" className="heroSub">
             I work on a customer support product: the billing module, third&#8209;party

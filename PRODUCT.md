@@ -26,7 +26,7 @@ Static Next.js site (App Router, React, TypeScript). Pages: home, /my-sparrowdes
 - The fox painting (public/backgrounds/hero.jpg) and the leaf cracking interaction are signature pieces.
 
 ## Brand Commitments
-Name: Arun S R. Voice: plain, first person, specific, quiet. The greeting is "Hi, I'm Arun." The tagline under it: "TypeScript across the stack: React, Node.js, PostgreSQL, Stripe and LLMs."
+Name: Arun S R. Voice: plain, first person, specific, quiet. The greeting is "Hi, I'm Arun." The tagline under it: "Whatever the feature needs, from the UI and APIs to databases, queues and LLMs."
 
 ## Evidence on Hand
 Résumé (public/Arun-S-R-Resume.pdf), GitHub (github.com/arun-121), LinkedIn. No clients or awards exist, so none may be invented. /my-sparrowdesk-years uses only measured numbers from Arun's own records (GitHub, Jira, git, Confluence, his write-ups, his Claude Code history); no testimonials, and no revenue, customer or pricing figures.
