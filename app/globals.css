@@ -1118,3 +1118,145 @@ body::before {
 .navBrand { transform-origin: left center; transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); }
 .navBrand:active { transform: scale(0.97); }
 @media (prefers-reduced-motion: reduce) { .navBrand { transform: none !important; } }
+/* ═════════ my sparrowdesk years: the path, told on the same stem as Experience.
+   the one moment: as each milestone scrolls in, the stem below its node fills with rust, so the
+   reader sees how far along the story they are. on-screen movement, so ease-in-out; once only. ═════════ */
+.story { padding-top: 40px; --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); }
+.storyHead { padding: 0 24px 56px; }
+.storyMeta { margin: 0 0 16px; font-family: var(--font-mono), ui-monospace, Menlo, monospace; font-size: 12px; line-height: 16px; letter-spacing: 0.04em; color: var(--muted); }
+.storyTitle { font-family: var(--serif); font-size: 44px; line-height: 1.04; letter-spacing: -0.025em; color: var(--ink); }
+@media (min-width: 640px) { .storyTitle { font-size: 56px; } }
+.storyLede { margin: 16px 0 0; max-width: 30em; font-size: 17px; line-height: 27px; color: var(--muted); }
+.unit .storySection { padding: 0 24px 64px; }
+.storyIntro { margin: -12px 0 24px; max-width: 36em; font-size: 15px; line-height: 24px; color: var(--muted); }
+.storyNote { margin: 8px 0 0; max-width: 36em; font-size: 13px; line-height: 20px; color: var(--muted); }
+
+/* started → by november 2026: two ends of one arc, the arrow is the two years between */
+.arc { margin-top: 32px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; column-gap: 20px;
+  padding: 20px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.arcEnd { min-width: 0; }
+.arcLabel { margin: 0; font-family: var(--font-mono), ui-monospace, Menlo, monospace; font-size: 11px; line-height: 16px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.arcRole { margin: 6px 0 0; font-family: var(--serif); font-size: 21px; line-height: 26px; letter-spacing: -0.01em; color: var(--ink); }
+.arcArrow { align-self: center; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; color: var(--accent); background: var(--cream); box-shadow: 0 0 0 1px var(--rule); }
+@media (max-width: 559px) {
+  .arc { grid-template-columns: 1fr; row-gap: 14px; }
+  .arcArrow { justify-self: start; transform: rotate(90deg); width: 28px; height: 28px; }
+}
+
+/* the path: date in the margin, a node on the stem, the milestone beside it */
+.path { --margin: 76px; --stem: 20px; --gap: 16px; --stemX: calc(var(--margin) + var(--gap) + var(--stem) / 2);
+  margin: 0; padding: 0; list-style: none; }
+.pathItem { position: relative; display: grid; grid-template-columns: var(--margin) var(--stem) minmax(0, 1fr); column-gap: var(--gap);
+  grid-template-areas: "margin node body"; align-items: start; padding-bottom: 18px; }
+.pathMargin { grid-area: margin; justify-self: end; text-align: right; white-space: nowrap; }
+.pathNode { grid-area: node; justify-self: center; position: relative; z-index: 1; margin-top: 8px; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--paper); border: 1px solid var(--muted); }
+.pathBody { grid-area: body; min-width: 0; margin: 0; }
+.pathDate { font-size: 13px; line-height: 24px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pathText { font-size: 16px; line-height: 24px; color: var(--ink); text-wrap: pretty; max-width: 34em; }
+
+/* each year opens on the stem: the year in the margin, its numbers, and a bar that grows year on year */
+.pathYear { padding-top: 10px; padding-bottom: 22px; }
+.pathYear:first-child { padding-top: 0; }
+.pathYearNum { font-family: var(--serif); font-size: 26px; line-height: 28px; letter-spacing: -0.01em; color: var(--ink); }
+.pathYear .pathNode { margin-top: 9px; width: 13px; height: 13px; border-width: 2px; border-color: var(--ink); }
+.pathStats { margin: 3px 0 0; font-size: 13px; line-height: 20px; color: var(--muted); }
+.pathSpan { color: var(--muted); }
+.pathBar { margin: 8px 0 4px; height: 4px; max-width: 22em; border-radius: 2px; background: color-mix(in srgb, var(--rule) 75%, transparent); overflow: hidden; }
+.pathBar i { display: block; height: 100%; border-radius: 2px; background: var(--accent); transform-origin: left center; }
+
+/* the stem: a hairline from each node to the next, and a rust line over it that fills when the milestone is reached */
+.pathItem:not(:last-child)::before,
+.pathItem:not(:last-child)::after { content: ""; position: absolute; left: calc(var(--stemX) - 0.5px); width: 1px; top: 12px; bottom: -12px; }
+.pathYear:not(:last-child)::before, .pathYear:not(:last-child)::after { top: 16px; }
+.pathItem:has(+ .pathYear)::before, .pathItem:has(+ .pathYear)::after { bottom: -26px; }
+.pathItem:not(:last-child)::before { background: var(--rule); }
+.pathItem:not(:last-child)::after { background: var(--accent); transform-origin: 50% 0; }
+/* reached: the node fills, quick and ease-out; the latest milestone keeps a soft ring */
+.pathStep[data-in="true"] .pathNode { background: var(--accent); border-color: var(--accent); }
+.pathStep[aria-current] .pathNode { width: 11px; height: 11px; margin-top: 7px; box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px color-mix(in srgb, var(--accent) 45%, transparent); }
+.pathStep[aria-current] .pathText { font-weight: 500; }
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .pathItem:not(:last-child)::after { transform: scaleY(0); transition: transform 560ms var(--ease-in-out) 120ms; }
+  .pathItem[data-in="true"]:not(:last-child)::after { transform: none; }
+  .pathStep .pathNode { transition: background-color 200ms var(--ease-out), border-color 200ms var(--ease-out); }
+  .pathBar i { transform: scaleX(0.04); transition: transform 700ms var(--ease-in-out) 160ms; }
+  .pathYear[data-in="true"] .pathBar i { transform: none; }
+}
+
+@media (max-width: 559px) {
+  .path { --margin: 0px; --gap: 12px; --stemX: calc(var(--stem) / 2); }
+  .pathItem { grid-template-columns: var(--stem) minmax(0, 1fr); grid-template-areas: "node margin" ". body"; }
+  .pathMargin { justify-self: start; text-align: left; }
+  .pathDate { line-height: 24px; }
+  .pathYearNum { font-size: 24px; }
+  .pathYear .pathNode { margin-top: 8px; }
+}
+
+/* the big pieces: the milestone in the serif, one plain line on what it involved */
+.pathStep[data-big] .pathText { font-family: var(--serif); font-size: 18px; line-height: 24px; letter-spacing: -0.005em; }
+.pathNote { margin: 2px 0 0; max-width: 34em; font-size: 14px; line-height: 21px; color: var(--muted); text-wrap: pretty; }
+.pathStep[data-big] { padding-bottom: 22px; }
+
+/* a measured result rides on its milestone: one quiet chip, label in rust */
+.pathResult { display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; margin: 6px 0 2px; padding: 3px 10px 4px;
+  border-radius: 999px; background: var(--cream); box-shadow: 0 0 0 1px var(--rule); font-size: 13px; line-height: 18px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.pathResultLabel { font-family: var(--font-mono), ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); }
+
+/* what i take with me: two short lists side by side, one line per item */
+.takeaways { display: grid; gap: 40px; }
+@media (min-width: 720px) { .takeaways { grid-template-columns: 1fr 1fr; gap: 40px; } }
+.takeCol { min-width: 0; }
+.takeCol .expHead { margin-bottom: 16px; }
+.takeList { margin: 0; padding: 0; list-style: none; }
+.takeItem { padding: 9px 0; font-size: 15px; line-height: 22px; color: var(--ink); text-wrap: pretty; }
+.takeItem + .takeItem { border-top: 1px solid color-mix(in srgb, var(--rule) 65%, transparent); }
+.takeItem:first-child { padding-top: 0; }
+.takeArea { display: block; margin-bottom: 2px; font-family: var(--font-mono), ui-monospace, Menlo, monospace; font-size: 11px; line-height: 16px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+
+/* the numbers: four figures on one line, the figure in the serif, its label under it */
+.statStrip { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 24px; }
+@media (min-width: 560px) { .statStrip { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.stat { display: flex; flex-direction: column-reverse; justify-content: flex-end; border-top: 1px solid var(--rule); padding-top: 12px; min-width: 0; }
+.statValue { margin: 0; font-family: var(--serif); font-size: 34px; line-height: 38px; letter-spacing: -0.02em; color: var(--ink); }
+.statLabel { margin-top: 2px; font-size: 13px; line-height: 18px; color: var(--muted); }
+.toolsLine { margin: 28px 0 0; font-size: 15px; line-height: 24px; color: var(--ink); text-wrap: pretty; }
+.toolsLine .takeArea { margin-bottom: 4px; }
+.toolsSep { color: var(--faint); }
+
+/* the end: a thank-you and the way back */
+.storyEnd { padding: 0 24px 64px; display: grid; gap: 14px; justify-items: start; }
+.storyEnd p { margin: 0; font-family: var(--serif); font-size: 20px; line-height: 28px; color: var(--ink); }
+.storyBack, .expStory {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 15px; line-height: 24px; color: var(--muted);
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: color 180ms ease, background-size 260ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)), transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.storyBack { transform-origin: left center; }
+.storyBack svg, .expStory svg { flex: none; transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1); }
+.storyBack:active, .expStory:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .storyBack:hover, .expStory:hover { color: var(--accent); background-size: 100% 1px; }
+  .storyBack:hover svg { transform: translateX(-2px); }
+  .expStory:hover svg { transform: translateX(2px); }
+}
+
+/* the way in: a quiet link under the SparrowDesk roles, lined up with the role titles */
+.expStory { margin: 18px 0 0 calc(var(--stem) + var(--gap)); transform-origin: left center; }
+@media (pointer: coarse) { .expStory, .storyBack { padding: 10px 0; } .expStory { margin-top: 8px; } }
+
+@media (max-width: 639px) {
+  .story { padding-top: 24px; }
+  .storyHead { padding: 0 12px 40px; }
+  .unit .storySection { padding: 0 12px 48px; }
+  .storyEnd { padding: 0 12px 48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .storyBack, .expStory, .storyBack svg, .expStory svg { transition: color 180ms ease; transform: none !important; }
+}
+
+/* the tagline under the greeting: one line in the serif, the plain description stays muted under it */
+.introCard .heroTagline { margin: 0 0 10px; max-width: 26em; font-family: var(--serif); font-size: 20px; line-height: 28px; letter-spacing: -0.005em; color: var(--ink); text-wrap: balance; }
+@media (max-width: 639px) { .introCard .heroTagline { font-size: 19px; line-height: 27px; } }
+

@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import ExperienceRole from "@/components/ExperienceRole";
 import Reveal from "@/components/Reveal";
 
@@ -10,6 +12,8 @@ type Company = {
   /** Newest first. The rail fills upward, from the first role to the current one. */
   /** built: one plain sentence about the role, shown when the title is opened. */
   roles: { title: string; start: string; end: string; built: string }[];
+  /** Optional page with the longer, factual story of the time there. */
+  story?: { href: string; label: string };
 };
 
 const COMPANIES: Company[] = [
@@ -18,6 +22,7 @@ const COMPANIES: Company[] = [
     url: "https://sparrowdesk.com",
     parent: { name: "SurveySparrow", url: "https://surveysparrow.com" },
     logo: "/logos/sparrowdesk.png",
+    story: { href: "/my-sparrowdesk-years", label: "My SparrowDesk years" },
     roles: [
       {
         title: "Member of Technical Staff",
@@ -79,6 +84,12 @@ export default function Experience() {
                   />
                 ))}
               </ol>
+              {co.story && (
+                <Link href={co.story.href} className="expStory">
+                  {co.story.label}
+                  <ArrowRight size={14} weight="bold" aria-hidden />
+                </Link>
+              )}
             </Reveal>
           );
         })}

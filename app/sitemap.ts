@@ -7,5 +7,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     { url: base, lastModified: now, changeFrequency: "monthly", priority: 1 },
+    { url: `${base}/my-sparrowdesk-years`, lastModified: now, changeFrequency: "yearly", priority: 0.7 },
   ];
 }

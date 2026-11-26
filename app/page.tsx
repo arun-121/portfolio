@@ -51,11 +51,14 @@ export default function Home() {
               <span className="profileTitle">{SITE.role}</span>
             </span>
           </Reveal>
-          <Reveal kind="up" delay={60} as="p" className="heroSub">
-            I work on a customer support product: the billing module, third&#8209;party
-            integrations, and the reusable pieces other features are built from.
+          <Reveal kind="up" delay={60} as="p" className="heroTagline">
+            TypeScript across the stack: React, Node.js, PostgreSQL, Stripe and LLMs.
           </Reveal>
-          <Reveal kind="up" delay={120} as="p" className="quietLinks introLinks">
+          <Reveal kind="up" delay={120} as="p" className="heroSub">
+            I work on a customer support product: the billing module, third&#8209;party
+            integrations, AI features, and the reusable pieces other features are built from.
+          </Reveal>
+          <Reveal kind="up" delay={180} as="p" className="quietLinks introLinks">
             <IntroLinks />
           </Reveal>
         </section>
