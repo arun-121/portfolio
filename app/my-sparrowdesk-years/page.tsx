@@ -46,22 +46,22 @@ const JOURNEY: (Year | Step)[] = [
   {
     kind: "step",
     date: "Jun 2026",
-    text: "Started on pricing for AI add‑ons",
-    note: "Two new plans in the product: a resolution‑based add‑on and a session‑based add‑on",
+    text: "Started on usage‑based pricing for the AI add‑on",
+    note: "Charging per resolution or per conversation, prepaid or postpaid, with usage caps",
   },
   { kind: "step", date: "Jun 2026", text: "HubSpot integration, version two" },
-  { kind: "step", date: "Sep 2026", text: "Stripe integration, and the AI add‑on plans shipped" },
+  { kind: "step", date: "Sep 2026", text: "AI add‑on pricing shipped, then the Stripe integration" },
   {
     kind: "step",
     date: "Oct 2026",
-    text: "Moved AI billing from seats to credits",
-    note: "Replaced per‑seat pricing with credits: every AI call records its token usage, credits map to tokens, and LLM cost is handled end to end",
+    text: "Moved Copilot from seats to credits",
+    note: "Every AI call now reports its token usage, and credits are charged from what each call actually cost",
   },
   {
     kind: "step",
     date: "Nov 2026",
     text: "Rebuilt the AI inbox filter",
-    result: "Median 5 s → 0.2 s; 2 in 3 searches skip the LLM",
+    result: "Median decision time 5 s \u2192 0.2 s; 2 in 3 searches skip the LLM",
   },
   { kind: "step", date: "Nov 2026", text: "RingCentral integration and live reports", now: true },
 ];
