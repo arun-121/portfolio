@@ -8,7 +8,7 @@ export function llmProfile(origin: string): string {
   return [
     `# ${SITE.name}`,
     "",
-    `${SITE.role}, based in ${SITE.location}.`,
+    `${SITE.role}, based in ${SITE.location}. Interested in local-first AI.`,
     "",
     "## Work",
     "- SparrowDesk (SurveySparrow), Member of Technical Staff, May 2025 to present. Works on the billing module, builds third-party integrations that are listed on app marketplaces, and ships AI features end to end.",

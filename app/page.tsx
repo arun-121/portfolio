@@ -48,7 +48,7 @@ export default function Home() {
             <img className="avatar foxAvatar" src="/avatar.jpg" alt="" width={64} height={64} />
             <span className="profileText">
               <h1 id="hero-title" className="profileName">Hi, I&rsquo;m Arun.</h1>
-              <span className="profileTitle">{SITE.role}</span>
+              <span className="profileTitle">{SITE.tagline}</span>
             </span>
           </Reveal>
           <Reveal kind="up" delay={60} as="p" className="heroSub">

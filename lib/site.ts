@@ -2,6 +2,8 @@
 export const SITE = {
   name: "Arun S R",
   role: "Full-stack product engineer",
+  /** The line under the name on the home page. `role` stays the job title for metadata. */
+  tagline: "Full-stack product engineer, interested in local-first AI",
   location: "Chennai, India",
   timeZone: "Asia/Kolkata",
   description:

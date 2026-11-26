@@ -1,19 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import Reveal from "@/components/Reveal";
 import SiteFooter from "@/components/SiteFooter";
 
 /*
- * My SparrowDesk years: the path from front-end intern to full-stack work, July 2024 to November 2026.
- * Dates and numbers come from my own records: git, GitHub's contribution calendar, Jira, Confluence,
- * my write-ups and my Claude Code history. Results are measured ones. No revenue, customer or pricing figures.
+ * My SparrowDesk years: what I built, July 2024 to November 2026.
+ * Dates and numbers come from my own records: git, GitHub, Jira, Confluence and my write-ups.
+ * Results are measured ones. No revenue, customer or pricing figures.
+ * Kept minimal on purpose: the path is the page; everything else is one quiet line.
+ * Every month from July 2024 to November 2026 sits inside some step's range, so the path has no gaps.
+ * It ends in November 2026, my last month at SparrowDesk.
  */
 
 const PATH = "/my-sparrowdesk-years";
 const TITLE = "My SparrowDesk years";
 const DESCRIPTION =
-  "How my work at SparrowDesk grew from front-end intern in July 2024 to full-stack work on billing, integrations and AI features.";
+  "What I built at SparrowDesk from July 2024 to November 2026, across billing, integrations and AI features.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -23,75 +26,149 @@ export const metadata: Metadata = {
   twitter: { title: TITLE, description: DESCRIPTION },
 };
 
-/** contributions: GitHub's yearly count. tickets: Jira issues closed. */
-type Year = { kind: "year"; year: string; span?: string; contributions: number; tickets: number };
-/** note: one line on what a big piece of work involved. result: a measured outcome, shown as a chip. */
-type Step = { kind: "step"; date: string; text: string; note?: string; result?: string; now?: boolean };
+type Year = { kind: "year"; year: string };
+/**
+ * date: one month ("Nov 2026") or a range in one year ("Aug–Sep 2024").
+ * note: one plain line on what a piece of work involved, or what it measurably changed.
+ * link: part of the text that links out, to something public.
+ */
+type Step = {
+  kind: "step";
+  date: string;
+  text: string;
+  note?: string;
+  link?: { text: string; href: string };
+  /** The last stop: the path ends here, in November 2026. */
+  last?: boolean;
+};
 
 const JOURNEY: (Year | Step)[] = [
-  { kind: "year", year: "2024", span: "from July", contributions: 312, tickets: 18 },
+  { kind: "year", year: "2024" },
   { kind: "step", date: "Jul 2024", text: "Joined as a front‑end intern" },
-  { kind: "step", date: "Aug 2024", text: "First commit: translation files for single sign‑on" },
-
-  { kind: "year", year: "2025", contributions: 1029, tickets: 115 },
-  { kind: "step", date: "Mar 2025", text: "Sparcade, the company’s AI hackathon, with my team" },
-  { kind: "step", date: "Apr 2025", text: "First backend commit" },
-  { kind: "step", date: "May 2025", text: "Member of Technical Staff" },
-  { kind: "step", date: "Aug 2025", text: "Shipped AI filters in the inbox" },
-
-  { kind: "year", year: "2026", span: "to November", contributions: 1770, tickets: 177 },
-  { kind: "step", date: "Mar 2026", text: "Jira and Linear integrations" },
-  { kind: "step", date: "Apr 2026", text: "Gmail add‑on for Google Workspace" },
-  { kind: "step", date: "May 2026", text: "Free plan, and started pairing with Claude Code" },
   {
     kind: "step",
-    date: "Jun 2026",
-    text: "Started on usage‑based pricing for the AI add‑on",
-    note: "Charging per resolution or per conversation, prepaid or postpaid, with usage caps",
+    date: "Aug–Sep 2024",
+    text: "Built settings screens for single sign‑on, macros and contact fields",
+    note: "React and TypeScript, with translations, error handling and tests",
   },
-  { kind: "step", date: "Jun 2026", text: "HubSpot integration, version two" },
-  { kind: "step", date: "Sep 2026", text: "AI add‑on pricing shipped, then the Stripe integration" },
+  { kind: "step", date: "Oct–Dec 2024", text: "Built the SLA settings screens: goals, reminders and conditions" },
+
+  { kind: "year", year: "2025" },
+  {
+    kind: "step",
+    date: "Jan–Apr 2025",
+    text: "Built the billing screens for plans, add‑ons, seats and invoices",
+    note: "Also the chat widget’s settings: colours, visibility rules and install options",
+  },
+  { kind: "step", date: "May 2025", text: "Became a Member of Technical Staff after ten months as an intern" },
+  {
+    kind: "step",
+    date: "Jun–Aug 2025",
+    text: "Built AI filters for the inbox and contacts",
+    note: "A plain‑English search turns into inbox or contact filters",
+  },
+  {
+    kind: "step",
+    date: "Aug–Oct 2025",
+    text: "Built knowledge‑gap tracking for the AI agent",
+    note: "Questions it couldn’t answer, grouped by topic, with scheduled rechecks",
+  },
+  {
+    kind: "step",
+    date: "Nov–Dec 2025",
+    text: "Built the knowledge base screens for the AI agent",
+    note: "Articles, documents, web pages and Q&As in one place, each with an AI agent and Copilot switch",
+  },
+
+  { kind: "year", year: "2026" },
+  {
+    kind: "step",
+    date: "Jan–Mar 2026",
+    text: "Built the onboarding for new sign‑ups",
+    note: "A questionnaire, connecting email or the chat widget, training the AI agent, and a getting‑started checklist",
+  },
+  {
+    kind: "step",
+    date: "Feb–Mar 2026",
+    text: "Built the Jira and Linear integrations",
+    note: "Also wrote the technical docs for both",
+  },
+  {
+    kind: "step",
+    date: "Mar–Apr 2026",
+    text: "Built the Gmail add‑on for Google Workspace with teammates",
+    link: {
+      text: "Gmail add‑on for Google Workspace",
+      href: "https://workspace.google.com/marketplace/app/sparrowdesk_ai_help_desk_ticketing_softw/707848370732",
+    },
+  },
+  {
+    kind: "step",
+    date: "May–Jun 2026",
+    text: "Built the new HubSpot integration",
+    note: "Syncs contacts and conversation notes; added install from the HubSpot Marketplace in August",
+  },
+  {
+    kind: "step",
+    date: "Jun–Sep 2026",
+    text: "Shipped AI add‑on billing modes and usage caps",
+    note: "Prepaid or postpaid, per resolution or per conversation",
+  },
+  {
+    kind: "step",
+    date: "Sep 2026",
+    text: "Built the Stripe integration for the inbox",
+    note: "Agents see a customer’s Stripe subscriptions and payments beside the conversation, read‑only",
+  },
   {
     kind: "step",
     date: "Oct 2026",
     text: "Moved Copilot from seats to credits",
-    note: "Every AI call now reports its token usage, and credits are charged from what each call actually cost",
+    note: "AI calls now report their token usage, and credits are charged from what each call actually cost",
+  },
+  {
+    kind: "step",
+    date: "Oct–Nov 2026",
+    text: "Rebuilt the AI inbox filter: a classifier first, an LLM only if unsure",
+    note: "On a realistic test setup: median decision time 5 s → 0.2 s, and 2 in 3 searches skip the LLM",
   },
   {
     kind: "step",
     date: "Nov 2026",
-    text: "Rebuilt the AI inbox filter",
-    result: "Median decision time 5 s \u2192 0.2 s; 2 in 3 searches skip the LLM",
+    text: "Built RingCentral calling and live reports",
+    note: "Calls from inside SparrowDesk, matched to contacts, with call logs and voicemail text; live conversation, member and phone reports",
+    last: true,
   },
-  { kind: "step", date: "Nov 2026", text: "RingCentral integration and live reports", now: true },
-];
-const MAX_CONTRIBUTIONS = Math.max(...JOURNEY.flatMap((j) => (j.kind === "year" ? [j.contributions] : [])));
-
-/** From the messages I sent Claude Code, Aug to Nov 2026. Only patterns that kept showing up. */
-const HOW_I_WORK = [
-  "Ask why until the flow is clear, then build",
-  "Start from the industry standard, or how a sister product did it",
-  "Cut the rare edge case instead of building for it",
-  "Several Claude Code sessions at once; commits, merges and deploys stay with me",
 ];
 
-const LEARNED: { area: string; text: string }[] = [
-  { area: "Backend", text: "Designing around data and failures, after a year of front‑end only" },
-  { area: "Billing", text: "Subscriptions, proration and credits, and checking a real bill before shipping" },
-  { area: "Integrations", text: "OAuth, webhooks, and the ways other people’s APIs fail" },
-  { area: "AI", text: "Building on language models, and measuring their speed, accuracy and cost" },
-];
+/** "Aug–Sep 2024" reads as "Aug to Sep 2024" to a screen reader. */
+function StepDate({ date }: { date: string }) {
+  const [from, to] = date.split("–");
+  if (!to) return <>{date}</>;
+  return (
+    <>
+      {from}
+      <span aria-hidden="true">–</span>
+      <span className="sr-only"> to </span>
+      {to}
+    </>
+  );
+}
 
-const NUMBERS: { value: string; label: string }[] = [
-  { value: "310", label: "tickets closed" },
-  { value: "297", label: "pull requests since May 2026" },
-  { value: "57", label: "reviews given" },
-  { value: "10", label: "technical docs" },
-];
-
-const TOOLS = ["Cursor until 2025, then Claude Code", "Bitbucket, then GitHub", "Jira and Confluence", "Grafana, Loki, New Relic and Sentry"];
-
-const fmt = (n: number) => n.toLocaleString("en-IN");
+/** The step's text, with its link (if any) on the words it names. */
+function StepText({ step }: { step: Step }) {
+  const at = step.link ? step.text.indexOf(step.link.text) : -1;
+  if (!step.link || at < 0) return <>{step.text}</>;
+  return (
+    <>
+      {step.text.slice(0, at)}
+      <a className="inlineLink" href={step.link.href} target="_blank" rel="noopener noreferrer">
+        {step.link.text}
+      </a>
+      {step.text.slice(at + step.link.text.length)}
+    </>
+  );
+}
 
 export default function MySparrowDeskYears() {
   let stepIndex = 0;
@@ -100,36 +177,18 @@ export default function MySparrowDeskYears() {
       <main id="main" className="column">
         <div className="unit story">
           <header className="storyHead">
-            <Reveal kind="up" as="p" className="storyMeta">
-              SparrowDesk <span aria-hidden="true">·</span> 2024 <span aria-hidden="true">–</span>
-              <span className="sr-only">to</span> 2026
-            </Reveal>
-            <Reveal kind="up" delay={60} as="h1" className="storyTitle">
+            <Reveal kind="up" as="h1" className="storyTitle">
               {TITLE}
             </Reveal>
-            <Reveal kind="up" delay={120} as="p" className="storyLede">
-              The path from front&#8209;end intern to full&#8209;stack work, taken from my commits, tickets and notes.
-            </Reveal>
-
-            <Reveal kind="up" delay={180} className="arc" role="group" aria-label="Where I started and where I got to">
-              <div className="arcEnd">
-                <p className="arcLabel">July 2024</p>
-                <p className="arcRole">Front&#8209;end intern</p>
-              </div>
-              <span className="arcArrow" aria-hidden="true">
-                <ArrowRight size={16} weight="bold" />
-              </span>
-              <div className="arcEnd">
-                <p className="arcLabel">November 2026</p>
-                <p className="arcRole">Member of Technical Staff</p>
-              </div>
+            <Reveal kind="up" delay={60} as="p" className="storyLede">
+              What I built at SparrowDesk from July 2024 to November 2026, taken from my commits, tickets and notes.
             </Reveal>
           </header>
 
           <section className="storySection" aria-labelledby="path-title">
-            <Reveal as="h2" id="path-title" className="expHead">
-              The path
-            </Reveal>
+            <h2 id="path-title" className="sr-only">
+              What I built
+            </h2>
             <ol className="path">
               {JOURNEY.map((j) => {
                 if (j.kind === "year") {
@@ -138,16 +197,6 @@ export default function MySparrowDeskYears() {
                     <Reveal as="li" kind="fade" key={j.year} className="pathItem pathYear">
                       <span className="pathMargin pathYearNum">{j.year}</span>
                       <span className="pathNode" aria-hidden="true" />
-                      <div className="pathBody">
-                        <h3 className="sr-only">{j.year}</h3>
-                        <p className="pathStats">
-                          {j.span && <span>{j.span} · </span>}
-                          {fmt(j.contributions)} contributions <span aria-hidden="true">·</span> {j.tickets} tickets
-                        </p>
-                        <div className="pathBar" aria-hidden="true">
-                          <i style={{ width: `${(100 * j.contributions) / MAX_CONTRIBUTIONS}%` }} />
-                        </div>
-                      </div>
                     </Reveal>
                   );
                 }
@@ -159,79 +208,28 @@ export default function MySparrowDeskYears() {
                     key={`${j.date}-${j.text}`}
                     delay={delay}
                     className="pathItem pathStep"
-                    aria-current={j.now ? "step" : undefined}
-                    data-big={j.note ? "" : undefined}
+                    data-last={j.last ? "" : undefined}
                   >
-                    <span className="pathMargin pathDate">{j.date}</span>
+                    <span className="pathMargin pathDate">
+                      <StepDate date={j.date} />
+                    </span>
                     <span className="pathNode" aria-hidden="true" />
                     <div className="pathBody">
-                      <p className="pathText">{j.text}</p>
+                      <p className="pathText">
+                        <StepText step={j} />
+                      </p>
                       {j.note && <p className="pathNote">{j.note}</p>}
-                      {j.result && (
-                        <p className="pathResult">
-                          <span className="pathResultLabel">Measured</span>
-                          {j.result}
-                        </p>
-                      )}
                     </div>
                   </Reveal>
                 );
               })}
             </ol>
-            <p className="storyNote">Contributions are GitHub&rsquo;s yearly count. Tickets are Jira issues closed.</p>
           </section>
 
-          <section className="storySection takeaways" aria-label="What I take with me">
-            <div className="takeCol">
-              <Reveal as="h2" className="expHead">
-                How I work
-              </Reveal>
-              <ul className="takeList">
-                {HOW_I_WORK.map((t, i) => (
-                  <Reveal as="li" kind="fade" key={t} delay={i * 40} className="takeItem">
-                    {t}
-                  </Reveal>
-                ))}
-              </ul>
-              <p className="storyNote">From about 5,300 messages I sent Claude Code, Aug&ndash;Nov 2026.</p>
-            </div>
-            <div className="takeCol">
-              <Reveal as="h2" className="expHead">
-                What I learned
-              </Reveal>
-              <ul className="takeList">
-                {LEARNED.map((l, i) => (
-                  <Reveal as="li" kind="fade" key={l.area} delay={i * 40} className="takeItem">
-                    <span className="takeArea">{l.area}</span>
-                    {l.text}
-                  </Reveal>
-                ))}
-              </ul>
-            </div>
-          </section>
-
-          <section className="storySection" aria-labelledby="numbers-title">
-            <h2 id="numbers-title" className="sr-only">
-              In numbers
-            </h2>
-            <dl className="statStrip">
-              {NUMBERS.map((n, i) => (
-                <Reveal as="div" kind="fade" key={n.label} delay={i * 40} className="stat">
-                  <dt className="statLabel">{n.label}</dt>
-                  <dd className="statValue">{n.value}</dd>
-                </Reveal>
-              ))}
-            </dl>
-            <p className="toolsLine">
-              <span className="takeArea">Tools</span>
-              {TOOLS.map((t, i) => (
-                <span key={t}>
-                  {t}
-                  {i < TOOLS.length - 1 && <span className="toolsSep" aria-hidden="true"> · </span>}
-                </span>
-              ))}
-            </p>
-          </section>
+          <Reveal as="section" kind="fade" className="storySection storyFacts" aria-label="In numbers, and the tools I used">
+            <p>310 tickets closed and 10 technical docs written. On GitHub since May 2026: 297 pull requests opened and 57 reviews given.</p>
+            <p>Tools: Cursor until 2025, then Claude Code; Bitbucket, then GitHub; Jira, Confluence, Grafana, Loki, New Relic and Sentry.</p>
+          </Reveal>
 
           <footer className="storyEnd">
             <p>Thank you to everyone at SparrowDesk I worked with.</p>
