@@ -23,6 +23,7 @@ export default function CommandPalette() {
       { id: "ig", label: "Open Instagram", hint: "@_arun_72", run: () => window.open(SITE.links.instagram, "_blank", "noopener") },
       { id: "cv", label: "Open résumé", hint: ".pdf", run: () => window.open("/Arun-S-R-Resume.pdf", "_blank", "noopener") },
       { id: "pdf", label: "Download résumé", hint: ".pdf", run: () => { const a = document.createElement("a"); a.href = "/Arun-S-R-Resume.pdf"; a.download = ""; a.click(); } },
+      { id: "story", label: "Read about my SparrowDesk years", hint: "/my-sparrowdesk-years", run: () => router.push("/my-sparrowdesk-years") },
       { id: "projects", label: "See my recent projects", hint: "#projects", run: () => (location.hash = "projects") },
       { id: "uses", label: "See what I use", hint: "#uses", run: () => (location.hash = "uses") },
       { id: "leaves", label: "Crack some leaves", hint: "#leaves", run: () => (location.hash = "leaves") },

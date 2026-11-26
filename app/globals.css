@@ -1118,3 +1118,102 @@ body::before {
 .navBrand { transform-origin: left center; transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1); }
 .navBrand:active { transform: scale(0.97); }
 @media (prefers-reduced-motion: reduce) { .navBrand { transform: none !important; } }
+/* ═════════ my sparrowdesk years: the path, told on the same stem as Experience. kept minimal: the path is the page.
+   the one moment: as each milestone scrolls in, the stem below its node fills with rust, so the
+   reader sees how far along the story they are. on-screen movement, so ease-in-out; once only. ═════════ */
+.story { padding-top: 40px; --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); }
+.storyHead { padding: 0 24px 48px; }
+.storyTitle { font-family: var(--serif); font-size: 44px; line-height: 1.04; letter-spacing: -0.025em; color: var(--ink); }
+@media (min-width: 640px) { .storyTitle { font-size: 56px; } }
+.storyLede { margin: 16px 0 0; max-width: 30em; font-size: 17px; line-height: 27px; color: var(--muted); }
+.unit .storySection { padding: 0 24px 56px; }
+
+/* the path: date in the margin, a node on the stem, the milestone beside it */
+.path { --margin: 92px; --stem: 20px; --gap: 16px; --stemX: calc(var(--margin) + var(--gap) + var(--stem) / 2);
+  margin: 0; padding: 0; list-style: none; }
+.pathItem { position: relative; display: grid; grid-template-columns: var(--margin) var(--stem) minmax(0, 1fr); column-gap: var(--gap);
+  grid-template-areas: "margin node body"; align-items: start; padding-bottom: 18px; }
+.pathMargin { grid-area: margin; justify-self: end; text-align: right; white-space: nowrap; }
+.pathNode { grid-area: node; justify-self: center; position: relative; z-index: 1; margin-top: 8px; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--paper); border: 1px solid var(--muted); }
+.pathBody { grid-area: body; min-width: 0; margin: 0; }
+.pathDate { font-size: 13px; line-height: 24px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pathText { font-size: 16px; line-height: 24px; color: var(--ink); text-wrap: pretty; max-width: 34em; }
+.pathNote { margin: 2px 0 0; max-width: 34em; font-size: 14px; line-height: 21px; color: var(--muted); text-wrap: pretty; }
+
+/* each year opens on the stem: just the year, in the margin */
+.pathYear { padding-top: 10px; padding-bottom: 14px; }
+.pathYear:first-child { padding-top: 0; }
+.pathYearNum { font-family: var(--serif); font-size: 26px; line-height: 28px; letter-spacing: -0.01em; color: var(--ink); }
+.pathYear .pathNode { margin-top: 9px; width: 13px; height: 13px; border-width: 2px; border-color: var(--ink); }
+
+/* the stem: a hairline from each node to the next, and a rust line over it that fills when the milestone is reached */
+.pathItem:not(:last-child)::before,
+.pathItem:not(:last-child)::after { content: ""; position: absolute; left: calc(var(--stemX) - 0.5px); width: 1px; top: 12px; bottom: -12px; }
+.pathYear:not(:last-child)::before, .pathYear:not(:last-child)::after { top: 16px; }
+.pathItem:has(+ .pathYear)::before, .pathItem:has(+ .pathYear)::after { bottom: -26px; }
+.pathItem:not(:last-child)::before { background: var(--rule); }
+.pathItem:not(:last-child)::after { background: var(--accent); transform-origin: 50% 0; }
+/* reached: the node fills, quick and ease-out; the last stop (November 2026) keeps a soft ring */
+.pathStep[data-in="true"] .pathNode { background: var(--accent); border-color: var(--accent); }
+.pathStep[data-last] .pathNode { width: 11px; height: 11px; margin-top: 7px; box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px color-mix(in srgb, var(--accent) 45%, transparent); }
+.pathStep[data-last] .pathText { font-weight: 500; }
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .pathItem:not(:last-child)::after { transform: scaleY(0); transition: transform 560ms var(--ease-in-out) 120ms; }
+  .pathItem[data-in="true"]:not(:last-child)::after { transform: none; }
+  .pathStep .pathNode { transition: background-color 200ms var(--ease-out), border-color 200ms var(--ease-out); }
+}
+
+@media (max-width: 559px) {
+  .path { --margin: 0px; --gap: 12px; --stemX: calc(var(--stem) / 2); }
+  .pathItem { grid-template-columns: var(--stem) minmax(0, 1fr); grid-template-areas: "node margin" ". body"; }
+  .pathMargin { justify-self: start; text-align: left; }
+  .pathDate { line-height: 24px; }
+  .pathYearNum { font-size: 24px; }
+  .pathYear .pathNode { margin-top: 8px; }
+}
+
+/* the numbers and the tools: two quiet lines after the path */
+.storyFacts { display: grid; gap: 8px; }
+.storyFacts p { margin: 0; max-width: 36em; font-size: 15px; line-height: 24px; color: var(--muted); text-wrap: pretty; }
+
+/* the end: a thank-you and the way back */
+.storyEnd { padding: 0 24px 64px; display: grid; gap: 14px; justify-items: start; }
+.storyEnd p { margin: 0; font-family: var(--serif); font-size: 20px; line-height: 28px; color: var(--ink); }
+.storyBack, .expStory {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 15px; line-height: 24px; color: var(--muted);
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: color 180ms ease, background-size 260ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)), transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.storyBack { transform-origin: left center; }
+.storyBack svg, .expStory svg { flex: none; transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1); }
+.storyBack:active, .expStory:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .storyBack:hover, .expStory:hover { color: var(--accent); background-size: 100% 1px; }
+  .storyBack:hover svg { transform: translateX(-2px); }
+  .expStory:hover svg { transform: translateX(2px); }
+}
+
+/* the way in: a quiet link under the SparrowDesk roles, lined up with the role titles */
+.expStory { margin: 18px 0 0 calc(var(--stem) + var(--gap)); transform-origin: left center; }
+@media (pointer: coarse) { .expStory, .storyBack { padding: 10px 0; } .expStory { margin-top: 8px; } }
+
+@media (max-width: 639px) {
+  .story { padding-top: 24px; }
+  .storyHead { padding: 0 12px 40px; }
+  .unit .storySection { padding: 0 12px 48px; }
+  .storyEnd { padding: 0 12px 48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .storyBack, .expStory, .storyBack svg, .expStory svg { transition: color 180ms ease; transform: none !important; }
+}
+
+/* links inside a sentence (the company names in the intro, the Gmail add-on on the story page): the same hover as the résumé links.
+   They keep the sentence's colour at rest, a touch heavier so they still read as links where there is no hover;
+   on hover they turn accent and an underline draws in from the left. */
+.heroLink, .inlineLink { color: inherit; font-weight: 500; text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: color 180ms ease, background-size 260ms cubic-bezier(0.23, 1, 0.32, 1), opacity 120ms ease; }
+.heroLink:active, .inlineLink:active { opacity: 0.7; }
+@media (hover: hover) and (pointer: fine) { .heroLink:hover, .inlineLink:hover { color: var(--accent); background-size: 100% 1px; } }
+

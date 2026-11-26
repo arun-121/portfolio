@@ -48,12 +48,19 @@ export default function Home() {
             <img className="avatar foxAvatar" src="/avatar.jpg" alt="" width={64} height={64} />
             <span className="profileText">
               <h1 id="hero-title" className="profileName">Hi, I&rsquo;m Arun.</h1>
-              <span className="profileTitle">{SITE.role}</span>
+              <span className="profileTitle">{SITE.tagline}</span>
             </span>
           </Reveal>
           <Reveal kind="up" delay={60} as="p" className="heroSub">
-            I work on a customer support product: the billing module, third&#8209;party
-            integrations, and the reusable pieces other features are built from.
+            Currently at{" "}
+            <a className="heroLink" href="https://sparrowdesk.com" target="_blank" rel="noopener noreferrer">
+              SparrowDesk
+            </a>
+            , the customer support platform from{" "}
+            <a className="heroLink" href="https://surveysparrow.com" target="_blank" rel="noopener noreferrer">
+              SurveySparrow
+            </a>
+            , as a Member of Technical Staff.
           </Reveal>
           <Reveal kind="up" delay={120} as="p" className="quietLinks introLinks">
             <IntroLinks />

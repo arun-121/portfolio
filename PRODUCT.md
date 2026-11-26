@@ -16,12 +16,12 @@ A small personal portfolio for Arun S R, a developer in Chennai, India. It intro
 A developer portfolio with a personal point of view: a watercolour scene and a pile of dry leaves that can be cracked. Work and skills are stated plainly; it is not a case study index.
 
 ## Operating Context
-Static Next.js site (App Router, React, TypeScript). Pages: home and a 404. Home has the intro, Experience, Recent projects (Recall and OneFit, from the public repos, one sentence each), a short Uses list (the setup, one line per row). The writing section was removed on request. The résumé is a .pdf in /public, opened in the browser's PDF viewer (a separate résumé page was tried and removed on request). Contact is a mailto link and a Cmd/Ctrl+K command palette.
+Static Next.js site (App Router, React, TypeScript). Pages: home, /my-sparrowdesk-years (a factual record of the SparrowDesk years, linked from the SparrowDesk entry in Experience and listed in the sitemap) and a 404. Home has the intro, Experience, Recent projects (Recall and OneFit, from the public repos, one sentence each), a short Uses list (the setup, one line per row). The writing section was removed on request. The résumé is a .pdf in /public, opened in the browser's PDF viewer (a separate résumé page was tried and removed on request). Contact is a mailto link and a Cmd/Ctrl+K command palette.
 
 ## Capabilities and Constraints
 - Primary action: open the résumé. GitHub is secondary (most work is in private repos); Email and LinkedIn are quieter still.
 - Keep it minimal and few words. Essentials only.
-- SparrowDesk may appear only where it is factual (the experience section). It was removed from the hero and metadata on request; do not put it back there.
+- SparrowDesk appears where it is factual: one short sentence in the hero, framed with "Currently" (role and company, SparrowDesk and SurveySparrow linked) so the job reads as a chapter, not his whole identity; the experience section; and its own page, /my-sparrowdesk-years. Keep it out of the metadata.
 - No privacy, terms or footer bar (removed on request).
 - The fox painting (public/backgrounds/hero.jpg) and the leaf cracking interaction are signature pieces.
 
@@ -29,7 +29,7 @@ Static Next.js site (App Router, React, TypeScript). Pages: home and a 404. Home
 Name: Arun S R. Voice: plain, first person, specific, quiet. The greeting is "Hi, I'm Arun."
 
 ## Evidence on Hand
-Résumé (public/Arun-S-R-Resume.pdf), GitHub (github.com/arun-121), LinkedIn. No testimonials, metrics, clients or awards exist, so none may be invented.
+Résumé (public/Arun-S-R-Resume.pdf), GitHub (github.com/arun-121), LinkedIn. No clients or awards exist, so none may be invented. /my-sparrowdesk-years uses only measured numbers from Arun's own records (GitHub, Jira, git, Confluence, his write-ups, his Claude Code history); no testimonials, and no revenue, customer or pricing figures.
 
 ## Product Principles
 - Say less. One sentence beats a section.
